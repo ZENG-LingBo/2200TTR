@@ -1,0 +1,534 @@
+/* ── GBA Ticket to Ride — Styles ── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: #ecf0f1;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Top Bar ── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px;
+  background: rgba(0,0,0,0.4);
+  border-bottom: 2px solid #2980b9;
+}
+
+.top-bar h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #3498db;
+}
+
+.top-bar h1 span {
+  color: #e74c3c;
+}
+
+#score-display {
+  display: flex;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.score-item {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.1);
+}
+
+#turn-indicator {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#rules-btn {
+  background: none;
+  border: 1px solid #3498db;
+  color: #3498db;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+#rules-btn:hover {
+  background: #3498db;
+  color: #fff;
+}
+
+/* ── Map Container ── */
+.map-container {
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+}
+
+#game-map {
+  width: 100%;
+  max-width: 960px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+/* ── SVG City Labels ── */
+.city-label {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #1a1a2e;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.city-label-cn {
+  font-size: 9px;
+  fill: #555;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* ── Route styling ── */
+.route-group {
+  transition: opacity 0.2s;
+}
+
+.route-group:hover rect {
+  opacity: 1 !important;
+  stroke-width: 2;
+}
+
+.route-group.claimable rect {
+  opacity: 0.85 !important;
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+.route-group.selected rect {
+  opacity: 1 !important;
+  stroke: #fff !important;
+  stroke-width: 2.5 !important;
+  filter: url(#glow);
+}
+
+.route-icon {
+  font-size: 12px;
+  pointer-events: none;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+
+/* ── Bottom Panel ── */
+.bottom-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 8px 20px 12px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.panel-section {
+  background: rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.panel-section h3 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #7f8c8d;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* ── Face-up cards ── */
+.cards-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.card {
+  width: 50px;
+  height: 70px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.card.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.card-empty {
+  background: rgba(255,255,255,0.1) !important;
+  border-style: dashed !important;
+  color: #666 !important;
+  cursor: default !important;
+}
+
+/* Card colors with better visibility */
+.card-red { background: #e74c3c !important; }
+.card-orange { background: #f39c12 !important; }
+.card-yellow { background: #f1c40f !important; color: #333 !important; text-shadow: none !important; }
+.card-green { background: #2ecc71 !important; }
+.card-blue { background: #3498db !important; }
+.card-purple { background: #9b59b6 !important; }
+.card-white { background: #ecf0f1 !important; color: #333 !important; text-shadow: none !important; }
+.card-black { background: #2c3e50 !important; }
+.card-locomotive { background: linear-gradient(135deg, #e67e22, #d35400) !important; border-color: #f39c12 !important; }
+.card-RMB { background: linear-gradient(135deg, #c0392b, #e74c3c) !important; border-color: #e74c3c !important; }
+.card-HKD { background: linear-gradient(135deg, #2980b9, #3498db) !important; border-color: #3498db !important; }
+.card-MOP { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; border-color: #2ecc71 !important; }
+
+/* ── Hand cards ── */
+.hand-card {
+  width: 48px;
+  height: 65px;
+  font-size: 0.75rem;
+  cursor: default;
+}
+
+.card-count {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.card-label {
+  font-size: 0.65rem;
+  opacity: 0.8;
+}
+
+/* ── Buttons ── */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  background: #34495e;
+  color: #ecf0f1;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #2980b9;
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #3498db;
+}
+
+#deck-btn {
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  border: 2px solid #7f8c8d;
+  padding: 8px 16px;
+}
+
+#deck-btn:hover:not(:disabled) {
+  border-color: #3498db;
+}
+
+/* ── Selected route info ── */
+#selected-route-info {
+  font-size: 0.85rem;
+  padding: 6px 0;
+  min-height: 40px;
+  line-height: 1.5;
+}
+
+#selected-route-info strong {
+  color: #3498db;
+}
+
+/* ── Tickets ── */
+.ticket {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  margin: 2px 0;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.ticket-complete {
+  background: rgba(46, 204, 113, 0.2);
+  border-left: 3px solid #2ecc71;
+}
+
+.ticket-incomplete {
+  background: rgba(231, 76, 60, 0.15);
+  border-left: 3px solid #e74c3c;
+}
+
+.ticket-pts {
+  font-weight: 700;
+  color: #f39c12;
+}
+
+.ticket-cities {
+  color: #ecf0f1;
+}
+
+/* ── Game message log ── */
+#game-message {
+  max-height: 80px;
+  overflow-y: auto;
+  font-size: 0.75rem;
+  margin-top: 6px;
+  padding: 4px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+
+.msg {
+  padding: 2px 6px;
+  border-radius: 2px;
+  margin: 1px 0;
+}
+
+.msg-info { color: #bdc3c7; }
+.msg-success { color: #2ecc71; }
+.msg-warn { color: #f39c12; }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: #1a1a2e;
+  border: 1px solid #2980b9;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+.modal h2 {
+  color: #3498db;
+  margin-bottom: 16px;
+  font-size: 1.3rem;
+}
+
+.modal h3 {
+  color: #2ecc71;
+  margin: 12px 0 6px;
+  font-size: 1rem;
+}
+
+.modal h4 {
+  color: #f39c12;
+  margin: 10px 0 4px;
+  font-size: 0.9rem;
+}
+
+.modal-body {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #bdc3c7;
+}
+
+.modal-body ul {
+  padding-left: 20px;
+  margin: 6px 0;
+}
+
+.modal-body li {
+  margin: 4px 0;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+
+/* ── Ticket picker ── */
+.ticket-option {
+  display: block;
+  padding: 8px 12px;
+  margin: 4px 0;
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+
+.ticket-option:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.ticket-option input[type="checkbox"] {
+  margin-right: 8px;
+  accent-color: #2ecc71;
+}
+
+/* ── End game score table ── */
+.score-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: 0.85rem;
+}
+
+.score-table th,
+.score-table td {
+  padding: 6px 10px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.score-table th {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.score-table td:first-child {
+  text-align: left;
+  color: #bdc3c7;
+}
+
+.total-row td {
+  border-top: 2px solid #3498db;
+  font-size: 1.1rem;
+  padding: 8px 10px;
+}
+
+.ticket-fail {
+  color: #e74c3c;
+}
+
+/* ── Currency checkbox in route info ── */
+#selected-route-info label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: #2ecc71;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+#selected-route-info input[type="checkbox"] {
+  accent-color: #2ecc71;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .bottom-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .top-bar {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .top-bar h1 {
+    font-size: 1rem;
+  }
+
+  .card {
+    width: 42px;
+    height: 58px;
+    font-size: 1rem;
+  }
+
+  .hand-card {
+    width: 40px;
+    height: 55px;
+  }
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #34495e;
+  border-radius: 3px;
+}
