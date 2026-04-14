@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GBA Ticket to Ride</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <h1>GBA <span>Ticket to Ride</span></h1>
+    <div id="score-display"></div>
+    <div class="top-right">
+      <span id="turn-indicator">Your Turn</span>
+      <button id="rules-btn">? Rules</button>
+    </div>
+  </header>
+
+  <!-- Map -->
+  <div class="map-container">
+    <svg id="game-map" viewBox="0 0 960 650" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <!-- Bottom Panel -->
+  <div class="bottom-panel">
+    <!-- Left: Actions -->
+    <div class="panel-section">
+      <h3>Draw Cards</h3>
+      <div class="cards-row" id="face-up-cards"></div>
+      <div class="action-buttons">
+        <button class="btn" id="deck-btn">Draw Deck</button>
+        <button class="btn" id="draw-tickets-btn">Draw Tickets</button>
+        <button class="btn btn-primary" id="claim-btn" disabled>Claim Route</button>
+      </div>
+      <div id="selected-route-info"><em>Click a route on the map to select it</em></div>
+      <div id="game-message"></div>
+    </div>
+
+    <!-- Right: Player Info -->
+    <div class="panel-section">
+      <h3>Your Hand</h3>
+      <div class="cards-row" id="hand-cards"></div>
+      <h3 style="margin-top: 8px;">Destination Tickets</h3>
+      <div id="ticket-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
