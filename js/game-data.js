@@ -6,7 +6,9 @@ export const STARTING_HAND = 5;
 export const END_TRIGGER = 3;
 export const CURRENCY_BONUS = 3;
 export const LONGEST_PATH_BONUS = 10;
-export const NUM_PLAYERS = 2; // Player vs AI
+export const DEFAULT_NUM_PLAYERS = 2;
+export const MIN_PLAYERS = 2;
+export const MAX_PLAYERS = 4;
 
 // ── Card Colors ──
 export const CARD_COLORS = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'white', 'black'];
@@ -30,9 +32,11 @@ export const COLOR_HEX = {
   MOP:  '#27ae60',
 };
 
-// ── Player colors ──
-export const PLAYER_COLORS = ['#2196F3', '#F44336']; // Blue for human, Red for AI
-export const PLAYER_NAMES = ['You', 'AI'];
+// ── Player colors (up to 4 players) ──
+export const PLAYER_COLORS = ['#2196F3', '#F44336', '#4CAF50', '#FFC107']; // Blue, Red, Green, Yellow
+export const DEFAULT_PLAYER_NAMES = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
+// Legacy exports for backwards compatibility
+export const PLAYER_NAMES = DEFAULT_PLAYER_NAMES;
 
 // ── Deck composition ──
 export const CARDS_PER_COLOR = 12;

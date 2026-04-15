@@ -2,9 +2,22 @@
 
 import {
   CITIES, ROUTES, CARD_COLORS, LOCO, CURRENCY_TYPES,
-  COLOR_HEX, PLAYER_COLORS, PLAYER_NAMES, ROUTE_TYPE,
-  getRoutePoints,
+  COLOR_HEX, PLAYER_COLORS, DEFAULT_PLAYER_NAMES, ROUTE_TYPE,
+  MIN_PLAYERS, MAX_PLAYERS, getRoutePoints,
 } from './game-data.js';
+
+// ── Player name lookup (set by main.js after setup) ──
+let playerNames = [...DEFAULT_PLAYER_NAMES];
+let playerTypes = ['human', 'ai', 'ai', 'ai']; // 'human' or 'ai'
+
+export function setPlayerInfo(names, types) {
+  playerNames = names;
+  playerTypes = types;
+}
+
+export function getPlayerName(idx) {
+  return playerNames[idx] || DEFAULT_PLAYER_NAMES[idx];
+}
 
 // ── SVG namespace ──
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -260,8 +273,16 @@ export function renderDeck(deckSize, onClick) {
 
 // ── Player hand ──
 
-export function renderHand(player) {
+export function renderHand(player, hidden = false) {
   handContainer.innerHTML = '';
+  if (hidden) {
+    const total = Object.values(player.hand).reduce((s, n) => s + n, 0);
+    const div = document.createElement('div');
+    div.className = 'hand-hidden';
+    div.textContent = `🂠 ${total} cards (hidden)`;
+    handContainer.appendChild(div);
+    return;
+  }
   const allTypes = [...CARD_COLORS, LOCO, ...CURRENCY_TYPES];
   for (const type of allTypes) {
     const count = player.hand[type] || 0;
@@ -285,8 +306,15 @@ function getCardLabel(type) {
 
 // ── Tickets ──
 
-export function renderTickets(player, gameState) {
+export function renderTickets(player, gameState, hidden = false) {
   ticketContainer.innerHTML = '';
+  if (hidden) {
+    const div = document.createElement('div');
+    div.className = 'ticket ticket-hidden';
+    div.textContent = `🎫 ${player.tickets.length} ticket(s) (hidden)`;
+    ticketContainer.appendChild(div);
+    return;
+  }
   for (const ticket of player.tickets) {
     const fromCity = CITIES[ticket.from].name;
     const toCity = CITIES[ticket.to].name;
@@ -301,9 +329,10 @@ export function renderTickets(player, gameState) {
 // ── Scores ──
 
 export function renderScores(players) {
-  scoreDisplay.innerHTML = players.map((p, i) =>
-    `<span class="score-item" style="color:${PLAYER_COLORS[i]}">${PLAYER_NAMES[i]}: ${p.score} pts | ${p.trains} trains</span>`
-  ).join(' &nbsp;|&nbsp; ');
+  scoreDisplay.innerHTML = players.map((p, i) => {
+    const typeIcon = playerTypes[i] === 'ai' ? ' 🤖' : '';
+    return `<span class="score-item" style="color:${PLAYER_COLORS[i]}">${playerNames[i]}${typeIcon}: ${p.score} pts | ${p.trains} trains</span>`;
+  }).join(' &nbsp;|&nbsp; ');
 }
 
 // ── Turn indicator ──
@@ -313,8 +342,9 @@ export function renderTurnIndicator(currentPlayer, phase) {
     turnIndicator.textContent = 'Game Over!';
     turnIndicator.style.color = '#e74c3c';
   } else {
-    const name = PLAYER_NAMES[currentPlayer];
-    turnIndicator.textContent = `${name === 'You' ? 'Your' : "AI's"} Turn`;
+    const name = playerNames[currentPlayer];
+    const typeIcon = playerTypes[currentPlayer] === 'ai' ? ' 🤖' : '';
+    turnIndicator.textContent = `${name}${typeIcon} — Turn`;
     turnIndicator.style.color = PLAYER_COLORS[currentPlayer];
   }
 }
@@ -404,7 +434,7 @@ export function showModal(title, content, buttons = []) {
   });
 }
 
-export function showTicketPicker(tickets, minKeep = 1) {
+export function showTicketPicker(tickets, minKeep = 1, playerIdx = 0) {
   return new Promise(resolve => {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
@@ -413,7 +443,8 @@ export function showTicketPicker(tickets, minKeep = 1) {
     modal.className = 'modal';
 
     const h2 = document.createElement('h2');
-    h2.textContent = `Choose Destination Tickets (keep at least ${minKeep})`;
+    h2.style.color = PLAYER_COLORS[playerIdx];
+    h2.textContent = `${playerNames[playerIdx]}: Choose Tickets (keep ≥${minKeep})`;
     modal.appendChild(h2);
 
     const body = document.createElement('div');
@@ -468,7 +499,7 @@ export function showEndGameModal(results) {
 
   let html = '<table class="score-table"><tr><th></th>';
   for (const r of results) {
-    html += `<th style="color:${PLAYER_COLORS[r.playerIdx]}">${PLAYER_NAMES[r.playerIdx]}</th>`;
+    html += `<th style="color:${PLAYER_COLORS[r.playerIdx]}">${playerNames[r.playerIdx]}</th>`;
   }
   html += '</tr>';
 
@@ -484,7 +515,8 @@ export function showEndGameModal(results) {
   for (const r of results) html += `<td>+${r.currencyBonuses}</td>`;
   html += '</tr>';
 
-  html += `<tr><td>Longest Path (${results[0].longestPath} vs ${results[1].longestPath})</td>`;
+  const pathSummary = results.map(r => r.longestPath).join(' vs ');
+  html += `<tr><td>Longest Path (${pathSummary})</td>`;
   for (const r of results) html += `<td>${r.longestPathBonus > 0 ? `+${r.longestPathBonus}` : '—'}</td>`;
   html += '</tr>';
 
@@ -494,7 +526,7 @@ export function showEndGameModal(results) {
 
   // Ticket details
   for (const r of results) {
-    html += `<h3 style="color:${PLAYER_COLORS[r.playerIdx]}">${PLAYER_NAMES[r.playerIdx]}'s Tickets</h3><ul>`;
+    html += `<h3 style="color:${PLAYER_COLORS[r.playerIdx]}">${playerNames[r.playerIdx]}'s Tickets</h3><ul>`;
     for (const tr of r.ticketResults) {
       const from = CITIES[tr.ticket.from].name;
       const to = CITIES[tr.ticket.to].name;
@@ -505,8 +537,163 @@ export function showEndGameModal(results) {
     html += '</ul>';
   }
 
-  const winnerName = PLAYER_NAMES[winner.playerIdx];
+  const winnerName = playerNames[winner.playerIdx];
   return showModal(`${winnerName} Wins!`, html, [{ label: 'New Game', value: 'new', primary: true }]);
+}
+
+// ── Setup screen: pick number of players & human/AI for each ──
+
+export function showSetupScreen() {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay setup-overlay';
+
+    const modal = document.createElement('div');
+    modal.className = 'modal setup-modal';
+
+    const h2 = document.createElement('h2');
+    h2.textContent = 'GBA Ticket to Ride';
+    modal.appendChild(h2);
+
+    const sub = document.createElement('p');
+    sub.className = 'setup-subtitle';
+    sub.textContent = 'Build train routes across the Greater Bay Area';
+    modal.appendChild(sub);
+
+    // Player count selector
+    const countDiv = document.createElement('div');
+    countDiv.className = 'setup-section';
+    countDiv.innerHTML = '<h3>Number of Players</h3>';
+    const countBar = document.createElement('div');
+    countBar.className = 'setup-count-bar';
+    let currentCount = 2;
+    const countBtns = [];
+    for (let n = MIN_PLAYERS; n <= MAX_PLAYERS; n++) {
+      const b = document.createElement('button');
+      b.className = 'btn setup-count-btn' + (n === currentCount ? ' active' : '');
+      b.textContent = n;
+      b.addEventListener('click', () => {
+        currentCount = n;
+        countBtns.forEach(btn => btn.classList.remove('active'));
+        b.classList.add('active');
+        renderPlayerRows();
+      });
+      countBtns.push(b);
+      countBar.appendChild(b);
+    }
+    countDiv.appendChild(countBar);
+    modal.appendChild(countDiv);
+
+    // Player rows
+    const playersDiv = document.createElement('div');
+    playersDiv.className = 'setup-section';
+    playersDiv.innerHTML = '<h3>Players</h3>';
+    const playerList = document.createElement('div');
+    playerList.className = 'setup-player-list';
+    playersDiv.appendChild(playerList);
+    modal.appendChild(playersDiv);
+
+    const playerSettings = [
+      { name: 'You', type: 'human' },
+      { name: 'AI Opponent', type: 'ai' },
+      { name: 'Player 3', type: 'ai' },
+      { name: 'Player 4', type: 'ai' },
+    ];
+
+    function renderPlayerRows() {
+      playerList.innerHTML = '';
+      for (let i = 0; i < currentCount; i++) {
+        const row = document.createElement('div');
+        row.className = 'setup-player-row';
+        row.style.borderLeftColor = PLAYER_COLORS[i];
+
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.className = 'setup-name-input';
+        nameInput.value = playerSettings[i].name;
+        nameInput.maxLength = 20;
+        nameInput.addEventListener('input', () => { playerSettings[i].name = nameInput.value || `Player ${i + 1}`; });
+        row.appendChild(nameInput);
+
+        const typeBar = document.createElement('div');
+        typeBar.className = 'setup-type-bar';
+        const humanBtn = document.createElement('button');
+        humanBtn.className = 'btn setup-type-btn' + (playerSettings[i].type === 'human' ? ' active' : '');
+        humanBtn.textContent = '👤 Human';
+        humanBtn.addEventListener('click', () => {
+          playerSettings[i].type = 'human';
+          humanBtn.classList.add('active');
+          aiBtn.classList.remove('active');
+        });
+        const aiBtn = document.createElement('button');
+        aiBtn.className = 'btn setup-type-btn' + (playerSettings[i].type === 'ai' ? ' active' : '');
+        aiBtn.textContent = '🤖 AI';
+        aiBtn.addEventListener('click', () => {
+          playerSettings[i].type = 'ai';
+          aiBtn.classList.add('active');
+          humanBtn.classList.remove('active');
+        });
+        typeBar.appendChild(humanBtn);
+        typeBar.appendChild(aiBtn);
+        row.appendChild(typeBar);
+
+        playerList.appendChild(row);
+      }
+    }
+    renderPlayerRows();
+
+    // Start button
+    const btnBar = document.createElement('div');
+    btnBar.className = 'modal-buttons';
+    const startBtn = document.createElement('button');
+    startBtn.textContent = 'Start Game';
+    startBtn.className = 'btn btn-primary';
+    startBtn.addEventListener('click', () => {
+      const names = [];
+      const types = [];
+      for (let i = 0; i < currentCount; i++) {
+        names.push(playerSettings[i].name || `Player ${i + 1}`);
+        types.push(playerSettings[i].type);
+      }
+      overlay.remove();
+      resolve({ numPlayers: currentCount, names, types });
+    });
+    btnBar.appendChild(startBtn);
+    modal.appendChild(btnBar);
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+  });
+}
+
+// ── Pass-device curtain (for hot-seat multiplayer) ──
+
+export function showPassDeviceScreen(playerIdx) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay pass-device-overlay';
+    overlay.style.background = PLAYER_COLORS[playerIdx];
+
+    const modal = document.createElement('div');
+    modal.className = 'pass-device-card';
+
+    const name = playerNames[playerIdx];
+    modal.innerHTML = `
+      <div class="pass-device-icon">🤝</div>
+      <h2>Pass the device to</h2>
+      <h1 style="color:${PLAYER_COLORS[playerIdx]}">${name}</h1>
+      <p>Tap when ready to see your hand</p>
+      <button class="btn btn-primary pass-device-btn">I'm Ready</button>
+    `;
+
+    modal.querySelector('.pass-device-btn').addEventListener('click', () => {
+      overlay.remove();
+      resolve();
+    });
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+  });
 }
 
 // ── Draw tickets button ──
