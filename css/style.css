@@ -612,6 +612,325 @@ body {
   border-color: #2ecc71;
 }
 
+/* ── Tutorial button in top bar ── */
+#tutorial-btn {
+  background: none;
+  border: 1px solid #f39c12;
+  color: #f39c12;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+}
+
+#tutorial-btn:hover {
+  background: #f39c12;
+  color: #1a1a2e;
+}
+
+/* ── Walkthrough modal ── */
+.walkthrough-overlay {
+  background: radial-gradient(circle at top, rgba(52, 152, 219, 0.25) 0%, rgba(0,0,0,0.85) 70%);
+}
+
+.walkthrough-modal {
+  max-width: 680px;
+  min-height: 460px;
+  display: flex;
+  flex-direction: column;
+}
+
+.walkthrough-modal h2 {
+  margin-bottom: 2px;
+}
+
+.wt-step-indicator {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #7f8c8d;
+  margin-bottom: 12px;
+}
+
+.walkthrough-body {
+  flex: 1;
+  min-height: 260px;
+  padding: 4px 0 12px;
+}
+
+.walkthrough-body p {
+  margin: 6px 0;
+}
+
+.wt-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+}
+
+.wt-list li {
+  padding: 5px 8px 5px 24px;
+  margin: 3px 0;
+  background: rgba(255,255,255,0.04);
+  border-left: 2px solid rgba(52, 152, 219, 0.4);
+  border-radius: 3px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  position: relative;
+}
+
+.wt-list.wt-small li { font-size: 0.82rem; padding: 4px 6px 4px 22px; }
+
+.wt-list:not(.wt-ordered) li::before {
+  content: '›';
+  position: absolute;
+  left: 9px;
+  color: #3498db;
+  font-weight: 700;
+}
+
+.wt-list.wt-ordered {
+  counter-reset: wt-counter;
+}
+.wt-list.wt-ordered li {
+  counter-increment: wt-counter;
+  padding-left: 30px;
+}
+.wt-list.wt-ordered li::before {
+  content: counter(wt-counter);
+  position: absolute;
+  left: 8px;
+  top: 4px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  background: #3498db;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.wt-dim {
+  color: #7f8c8d;
+  font-size: 0.82rem;
+  font-style: italic;
+}
+
+.wt-callout {
+  background: rgba(46, 204, 113, 0.12);
+  border-left: 3px solid #2ecc71;
+  padding: 8px 12px;
+  margin: 10px 0;
+  border-radius: 4px;
+  font-size: 0.88rem;
+}
+
+.wt-hero {
+  text-align: center;
+  font-size: 3rem;
+  letter-spacing: 12px;
+  margin: 14px 0 8px;
+}
+
+.wt-small { font-size: 0.82rem; }
+
+/* Top-bar mockup */
+.wt-topbar-mock {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid #2980b9;
+  border-radius: 6px;
+  margin: 10px 0;
+  font-size: 0.78rem;
+  flex-wrap: wrap;
+}
+.wt-mock-title { font-weight: 700; color: #3498db; }
+.wt-mock-title em { color: #e74c3c; font-style: normal; }
+.wt-mock-scores { flex: 1; font-weight: 600; font-size: 0.75rem; }
+.wt-mock-turn { color: #2196F3; font-weight: 700; font-size: 0.78rem; }
+.wt-mock-btn {
+  border: 1px solid #3498db;
+  color: #3498db;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+}
+
+/* Bottom-panel mockup */
+.wt-bottompanel-mock {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 10px 0;
+}
+.wt-panel-half {
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+  padding: 8px;
+}
+.wt-panel-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #f39c12;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+/* Card mockup rows */
+.wt-card-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+.wt-card-row-center { justify-content: center; }
+
+.wt-card {
+  width: 38px;
+  height: 52px;
+  font-size: 1rem;
+  cursor: default;
+}
+.wt-card:hover { transform: none; box-shadow: none; }
+
+.wt-deck-mock {
+  width: 56px;
+  height: 52px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  border: 2px solid #7f8c8d;
+  color: #ecf0f1;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 600;
+}
+
+.wt-plus, .wt-eq {
+  font-size: 1.4rem;
+  color: #f39c12;
+  font-weight: 700;
+  margin: 0 6px;
+}
+.wt-bonus {
+  font-size: 1.2rem;
+  color: #2ecc71;
+  font-weight: 700;
+  background: rgba(46, 204, 113, 0.15);
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+
+/* Mini-map SVG */
+.mini-map {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  display: block;
+  margin: 8px auto;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* Tickets mockup */
+.wt-tickets-mock {
+  margin: 10px 0;
+  max-width: 360px;
+}
+.wt-tickets-mock .ticket { font-size: 0.85rem; }
+
+/* Recap grid */
+.wt-recap {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 18px 0;
+}
+.wt-recap-item {
+  text-align: center;
+  background: rgba(52, 152, 219, 0.1);
+  border-radius: 8px;
+  padding: 12px 6px;
+}
+.wt-recap-num {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #3498db;
+  line-height: 1;
+}
+.wt-recap-item div:last-child {
+  font-size: 0.75rem;
+  color: #bdc3c7;
+  margin-top: 4px;
+}
+
+/* Dots */
+.walkthrough-dots {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+.walkthrough-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid #7f8c8d;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, transform 0.15s;
+}
+.walkthrough-dot.done {
+  background: rgba(52, 152, 219, 0.5);
+  border-color: #3498db;
+}
+.walkthrough-dot.active {
+  background: #3498db;
+  border-color: #3498db;
+  transform: scale(1.3);
+}
+.walkthrough-dot:hover {
+  border-color: #3498db;
+}
+
+/* Nav row */
+.walkthrough-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  gap: 8px;
+}
+.walkthrough-nav-right {
+  display: flex;
+  gap: 8px;
+}
+.walkthrough-skip-btn {
+  background: transparent;
+  color: #7f8c8d;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.walkthrough-skip-btn:hover {
+  color: #e74c3c;
+  background: transparent;
+}
+
 /* ── Pass-device curtain ── */
 .pass-device-overlay {
   backdrop-filter: none;
