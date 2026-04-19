@@ -4,7 +4,7 @@ import {
   CITIES, ROUTES, TICKETS, CARD_COLORS, LOCO, CURRENCY_TYPES,
   CARDS_PER_COLOR, LOCO_COUNT, CURRENCY_PER_TYPE,
   TRAINS_PER_PLAYER, STARTING_HAND, END_TRIGGER, CURRENCY_BONUS,
-  LONGEST_PATH_BONUS, ROUTE_TYPE, NUM_PLAYERS,
+  LONGEST_PATH_BONUS, ROUTE_TYPE, DEFAULT_NUM_PLAYERS,
   getRoutePoints, DOUBLE_ROUTE_PAIRS,
 } from './game-data.js';
 
@@ -47,6 +47,7 @@ function createPlayer(index) {
 export class GameState {
   constructor() {
     this.players = [];
+    this.numPlayers = DEFAULT_NUM_PLAYERS;
     this.deck = [];
     this.discardPile = [];
     this.faceUp = [];
@@ -58,12 +59,13 @@ export class GameState {
     this.log = [];
   }
 
-  init() {
+  init(numPlayers = DEFAULT_NUM_PLAYERS) {
+    this.numPlayers = numPlayers;
     this.deck = buildDeck();
     this.discardPile = [];
     this.ticketDeck = shuffle([...TICKETS]);
     this.players = [];
-    for (let i = 0; i < NUM_PLAYERS; i++) {
+    for (let i = 0; i < numPlayers; i++) {
       this.players.push(createPlayer(i));
     }
 
@@ -151,7 +153,7 @@ export class GameState {
     if (this._isRouteClaimed(routeIdx)) return false;
 
     // Double route: in 2-3 player games, if partner is claimed, block
-    if (route.doubleOf >= 0 && NUM_PLAYERS <= 3) {
+    if (route.doubleOf >= 0 && this.numPlayers <= 3) {
       if (this._isRouteClaimed(route.doubleOf)) return false;
     }
     // In 4p, can't claim both of a double pair yourself
@@ -341,11 +343,11 @@ export class GameState {
     if (this.players[this.currentPlayer].trains <= END_TRIGGER && this.lastRoundTriggeredBy < 0) {
       this.lastRoundTriggeredBy = this.currentPlayer;
       this.gamePhase = 'lastRound';
-      this.log.push(`${this.currentPlayer === 0 ? 'You' : 'AI'} triggered the last round! (≤${END_TRIGGER} trains)`);
+      this.log.push(`Player ${this.currentPlayer + 1} triggered the last round! (≤${END_TRIGGER} trains)`);
     }
 
     // Advance to next player
-    this.currentPlayer = (this.currentPlayer + 1) % NUM_PLAYERS;
+    this.currentPlayer = (this.currentPlayer + 1) % this.numPlayers;
     this.turnNumber++;
 
     // Check if last round is complete
