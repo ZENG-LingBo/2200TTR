@@ -3,7 +3,7 @@
 import {
   CITIES, ROUTES, CARD_COLORS, LOCO, CURRENCY_TYPES,
   COLOR_HEX, PLAYER_COLORS, DEFAULT_PLAYER_NAMES, ROUTE_TYPE,
-  MIN_PLAYERS, MAX_PLAYERS, getRoutePoints,
+  MIN_PLAYERS, MAX_PLAYERS, getRoutePoints, CURRENCY_BONUS_VALUES,
 } from './game-data.js';
 
 // ── Player name lookup (set by main.js after setup) ──
@@ -351,7 +351,7 @@ export function renderTurnIndicator(currentPlayer, phase) {
 
 // ── Selected route info ──
 
-export function showSelectedRoute(routeId, canClaim, canCurrency, combo) {
+export function showSelectedRoute(routeId, canClaim, currencyZone, combo) {
   if (routeId < 0) {
     selectedRouteInfo.innerHTML = '<em>Click a route on the map to select it</em>';
     claimBtn.disabled = true;
@@ -371,7 +371,7 @@ export function showSelectedRoute(routeId, canClaim, canCurrency, combo) {
   selectedRouteInfo.innerHTML = `
     <strong>${from} → ${to}</strong>${typeLabel}<br>
     Cost: ${costStr} | Points: ${pts}
-    ${canCurrency ? '<br><label><input type="checkbox" id="use-currency-cb"> Use currency card (+3 pts)</label>' : ''}
+    ${currencyZone ? `<br><label><input type="checkbox" id="use-currency-cb"> Use ${currencyZone} currency card (+${CURRENCY_BONUS_VALUES[currencyZone]} pts)</label>` : ''}
   `;
   claimBtn.disabled = !canClaim;
 }
@@ -875,11 +875,11 @@ const WALKTHROUGH_STEPS = [
         ${mockCard('MOP', 'P')}
       </div>
       <ul class="wt-list wt-small">
-        <li><strong>¥ RMB</strong> — Mainland (Guangzhou, Shenzhen, Foshan, …)</li>
-        <li><strong>$ HKD</strong> — Hong Kong zone</li>
-        <li><strong>P MOP</strong> — Macau</li>
-        <li>6 of each (18 total). <em>Not</em> train cards — they can't pay route length.</li>
-        <li>Used only for the <strong>Currency Bonus</strong> (see step 13)</li>
+        <li><strong>¥ RMB</strong> — Mainland (Guangzhou, Shenzhen, Foshan, …) → <strong>+3 pts</strong></li>
+        <li><strong>$ HKD</strong> — Hong Kong zone → <strong>+5 pts</strong></li>
+        <li><strong>P MOP</strong> — Macau → <strong>+7 pts</strong></li>
+        <li>Card counts scale by zone size: <strong>6 RMB · 4 HKD · 2 MOP</strong> (12 total). <em>Not</em> train cards — they can't pay route length.</li>
+        <li>Rarer currencies give bigger bonuses! (see step 13)</li>
       </ul>
     `,
   },
@@ -937,20 +937,21 @@ const WALKTHROUGH_STEPS = [
   },
   // 13. Currency bonus
   {
-    title: '💰 Currency Bonus — +3 pts',
+    title: '💰 Currency Bonus — Scaled',
     html: `
       <div class="wt-card-row wt-card-row-center">
         ${mockCard('RMB', '¥')}
         <span class="wt-plus">+</span>
         ${miniMapSvg({ routeColor: 'red' })}
         <span class="wt-eq">=</span>
-        <span class="wt-bonus">+3 pts!</span>
+        <span class="wt-bonus">+3/+5/+7!</span>
       </div>
       <ul class="wt-list wt-small">
-        <li>When claiming a route where <strong>both endpoint cities are in the same currency zone</strong>…</li>
-        <li>…you may discard <strong>one matching currency card</strong> for <strong>+3 bonus points</strong></li>
-        <li>Example: Zhuhai (RMB) → Foshan (RMB) → discard one ¥ RMB card → +3</li>
-        <li>A checkbox <em>"Use currency card (+3 pts)"</em> appears in the route info panel when eligible</li>
+        <li>When claiming a route where <strong>at least one endpoint city</strong> is in the matching currency zone…</li>
+        <li>…you may discard one matching currency card for bonus points:</li>
+        <li><strong>¥ RMB → +3</strong> · <strong>$ HKD → +5</strong> · <strong>P MOP → +7</strong></li>
+        <li>Example: Zhongshan (RMB) → Macau (MOP) → discard MOP card → +7 pts!</li>
+        <li>If both currencies match, the system picks the highest-value one</li>
       </ul>
     `,
   },
@@ -964,7 +965,7 @@ const WALKTHROUGH_STEPS = [
         ${mockCard('locomotive', '🚂')}
         ${mockCard('yellow', '')}
         ${mockCard('green', '')}
-        <div class="wt-deck-mock">Deck<br>(118)</div>
+        <div class="wt-deck-mock">Deck<br>(112)</div>
       </div>
       <ul class="wt-list wt-small">
         <li>Take <strong>2 cards</strong> per turn — each one from either the face-up row or the deck</li>
@@ -980,7 +981,7 @@ const WALKTHROUGH_STEPS = [
       <ol class="wt-list wt-small wt-ordered">
         <li>Click any <strong>glowing route</strong> on the map — it becomes selected</li>
         <li>The <strong>selected-route info</strong> panel shows cost breakdown + points</li>
-        <li>(Optional) tick <strong>☑ Use currency card</strong> if both cities share a zone</li>
+        <li>(Optional) tick <strong>☑ Use currency card</strong> if either city is in a matching zone</li>
         <li>Click <strong>Claim Route</strong> — cards are spent, route turns your color, points added</li>
       </ol>
       <div class="wt-callout">

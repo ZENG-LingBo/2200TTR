@@ -139,9 +139,9 @@ function updateSelectedRouteDisplay() {
   const cp = game.currentPlayer;
   if (selectedRoute >= 0 && isHuman(cp)) {
     const canClaim = game.canClaimRoute(cp, selectedRoute);
-    const canCurrency = canClaim && game.canUseCurrency(cp, selectedRoute);
+    const currencyZone = canClaim ? game.getBestCurrency(cp, selectedRoute) : null;
     const combo = canClaim ? game.getBestCombo(cp, selectedRoute) : null;
-    showSelectedRoute(selectedRoute, canClaim, canCurrency, combo);
+    showSelectedRoute(selectedRoute, canClaim, currencyZone, combo);
   } else {
     showSelectedRoute(-1, false, false, null);
   }
