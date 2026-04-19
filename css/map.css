@@ -99,15 +99,6 @@ body {
   font-size: 11px;
   pointer-events: none;
 }
-.pm-route-tag {
-  font-size: 9px;
-  font-weight: 700;
-  fill: #0b3d5c;
-  paint-order: stroke;
-  stroke: #ffffff;
-  stroke-width: 2.5px;
-  stroke-linejoin: round;
-}
 
 .pm-legend-title {
   font-size: 13px;
@@ -117,11 +108,6 @@ body {
 .pm-legend-text {
   font-size: 11px;
   fill: #1a2b38;
-}
-.pm-legend-note {
-  font-size: 9px;
-  fill: #4a6274;
-  font-style: italic;
 }
 
 /* ── Print rules: only the map goes to paper ── */

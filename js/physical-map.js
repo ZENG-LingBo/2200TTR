@@ -9,7 +9,6 @@ import {
   ROUTES,
   COLOR_HEX,
   ROUTE_TYPE,
-  getRoutePoints,
 } from './game-data.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -200,38 +199,14 @@ function renderRoute(parent, route) {
     }
   }
 
-  // Length / points tag near the midpoint, perpendicular-offset so it sits
-  // off the track itself and away from the parallel twin. A white pill sits
-  // behind the text so it stays legible over routes, water and river.
-  const mx = (from.x + to.x) / 2 + ox * 0.4;
-  const my = (from.y + to.y) / 2 + oy * 0.4;
-  const perp = (angle + 90) * Math.PI / 180;
-  const tagSide = route.doubleOf >= 0 && route.id >= route.doubleOf ? -1 : 1;
-  const tx = mx + Math.cos(perp) * 18 * tagSide;
-  const ty = my + Math.sin(perp) * 18 * tagSide;
-
-  const pts = getRoutePoints(route.length, route.type);
-  const tagText = `${route.length}·${pts}`;
-  const tagWidth = 8 + tagText.length * 5;
-
-  g.appendChild(el('rect', {
-    x: tx - tagWidth / 2, y: ty - 6,
-    width: tagWidth, height: 12, rx: 6,
-    fill: '#ffffff', stroke: '#0b3d5c', 'stroke-width': 0.8,
-    opacity: 0.95,
-  }));
-  g.appendChild(el('text', {
-    x: tx, y: ty + 3.5, 'text-anchor': 'middle', class: 'pm-route-tag',
-  }, tagText));
-
   parent.appendChild(g);
 }
 
 function renderLegend() {
-  const g = el('g', { id: 'pm-legend', transform: 'translate(20, 500)' });
+  const g = el('g', { id: 'pm-legend', transform: 'translate(20, 510)' });
 
   g.appendChild(el('rect', {
-    x: 0, y: 0, width: 240, height: 132, rx: 8,
+    x: 0, y: 0, width: 240, height: 110, rx: 8,
     fill: '#ffffff', stroke: '#0b3d5c', 'stroke-width': 1.5, opacity: 0.92,
   }));
   g.appendChild(el('text', {
@@ -260,10 +235,6 @@ function renderLegend() {
       x: 50, y: y + 10, class: 'pm-legend-text',
     }, row.label));
   });
-
-  g.appendChild(el('text', {
-    x: 12, y: 118, class: 'pm-legend-note',
-  }, 'Number on route = length · points'));
 
   return g;
 }
