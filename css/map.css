@@ -76,19 +76,6 @@ body {
 }
 
 /* ── Map text styling (SVG) ── */
-.pm-title {
-  font-size: 22px;
-  font-weight: 700;
-  fill: #0b3d5c;
-  letter-spacing: 0.5px;
-}
-.pm-subtitle {
-  font-size: 12px;
-  fill: #4a6274;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-}
-
 .pm-label-en {
   font-size: 12px;
   font-weight: 700;

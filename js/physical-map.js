@@ -22,15 +22,15 @@ const LABEL_DIR = {
   1:  { dir: 'N' },   // Suihui
   2:  { dir: 'W' },   // Foshan
   3:  { dir: 'N' },   // Guangzhou
-  4:  { dir: 'N' },   // Huadu
+  4:  { dir: 'E' },   // Huadu — label right so it doesn't touch the top edge
   5:  { dir: 'W' },   // Jiangmen
-  6:  { dir: 'S' },   // Zhongshan
+  6:  { dir: 'W' },   // Zhongshan — clear of the Humen-bridge tag to the east
   7:  { dir: 'N' },   // Dongguan
   8:  { dir: 'W' },   // Humen
   9:  { dir: 'N' },   // Huizhou
   10: { dir: 'N' },   // Longgang
   11: { dir: 'N' },   // Shenzhen
-  12: { dir: 'W' },   // Zhuhai — label left to stay clear of Macau
+  12: { dir: 'E' },   // Zhuhai — label right, Macau's to the south
   13: { dir: 'S' },   // Macau — label below
   14: { dir: 'E' },   // NT — label right, away from HK
   15: { dir: 'E' },   // Hong Kong — label right
@@ -39,10 +39,12 @@ const LABEL_DIR = {
 // Copy of CITIES with a couple of small position tweaks so labels and
 // short routes don't pile on top of each other in the physical print.
 const CITIES = GAME_CITIES.map((c) => {
-  if (c.id === 12) return { ...c, x: 505, y: 540 }; // Zhuhai a bit up+left
-  if (c.id === 13) return { ...c, x: 495, y: 590 }; // Macau a bit down+left
-  if (c.id === 14) return { ...c, x: 745, y: 478 }; // NT a touch up
-  if (c.id === 15) return { ...c, x: 755, y: 582 }; // Hong Kong a touch down+right
+  if (c.id === 4)  return { ...c, x: 380, y: 80 };  // Huadu — down a bit, clear of top edge
+  if (c.id === 6)  return { ...c, x: 446, y: 420 }; // Zhongshan — up slightly
+  if (c.id === 12) return { ...c, x: 510, y: 535 }; // Zhuhai
+  if (c.id === 13) return { ...c, x: 490, y: 595 }; // Macau — a bit SW of Zhuhai
+  if (c.id === 14) return { ...c, x: 745, y: 478 }; // NT
+  if (c.id === 15) return { ...c, x: 760, y: 585 }; // Hong Kong
   return { ...c };
 });
 
@@ -94,9 +96,8 @@ export function renderPhysicalMap(svg) {
   for (const c of CITIES) renderCity(cityLayer, c);
   svg.appendChild(cityLayer);
 
-  // Legend + title
+  // Legend
   svg.appendChild(renderLegend());
-  svg.appendChild(renderTitle());
 }
 
 function renderCity(parent, city) {
@@ -200,18 +201,28 @@ function renderRoute(parent, route) {
   }
 
   // Length / points tag near the midpoint, perpendicular-offset so it sits
-  // off the track itself and away from the parallel twin.
+  // off the track itself and away from the parallel twin. A white pill sits
+  // behind the text so it stays legible over routes, water and river.
   const mx = (from.x + to.x) / 2 + ox * 0.4;
   const my = (from.y + to.y) / 2 + oy * 0.4;
   const perp = (angle + 90) * Math.PI / 180;
   const tagSide = route.doubleOf >= 0 && route.id >= route.doubleOf ? -1 : 1;
-  const tx = mx + Math.cos(perp) * 16 * tagSide;
-  const ty = my + Math.sin(perp) * 16 * tagSide + 3;
+  const tx = mx + Math.cos(perp) * 18 * tagSide;
+  const ty = my + Math.sin(perp) * 18 * tagSide;
 
   const pts = getRoutePoints(route.length, route.type);
+  const tagText = `${route.length}·${pts}`;
+  const tagWidth = 8 + tagText.length * 5;
+
+  g.appendChild(el('rect', {
+    x: tx - tagWidth / 2, y: ty - 6,
+    width: tagWidth, height: 12, rx: 6,
+    fill: '#ffffff', stroke: '#0b3d5c', 'stroke-width': 0.8,
+    opacity: 0.95,
+  }));
   g.appendChild(el('text', {
-    x: tx, y: ty, 'text-anchor': 'middle', class: 'pm-route-tag',
-  }, `${route.length}·${pts}`));
+    x: tx, y: ty + 3.5, 'text-anchor': 'middle', class: 'pm-route-tag',
+  }, tagText));
 
   parent.appendChild(g);
 }
@@ -254,17 +265,6 @@ function renderLegend() {
     x: 12, y: 118, class: 'pm-legend-note',
   }, 'Number on route = length · points'));
 
-  return g;
-}
-
-function renderTitle() {
-  const g = el('g', { id: 'pm-title' });
-  g.appendChild(el('text', {
-    x: 480, y: 34, 'text-anchor': 'middle', class: 'pm-title',
-  }, 'GBA Ticket to Ride — Physical Map'));
-  g.appendChild(el('text', {
-    x: 480, y: 54, 'text-anchor': 'middle', class: 'pm-subtitle',
-  }, 'Greater Bay Area · Print & Play Edition'));
   return g;
 }
 
