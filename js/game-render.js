@@ -67,12 +67,36 @@ export function renderMap(gameState, onRouteClick) {
   bg.setAttribute('rx', '12');
   mapSvg.appendChild(bg);
 
-  // Pearl River area (rough polygon)
+  // Pearl River / Delta estuary (follows new city layout: between west cities and east cities)
   const river = document.createElementNS(SVG_NS, 'path');
-  river.setAttribute('d', 'M420,300 Q480,380 500,450 Q520,500 540,540 Q560,570 520,600 Q480,620 460,600 Q440,560 430,500 Q420,430 400,370 Z');
+  river.setAttribute('d', 'M440,280 Q480,360 470,440 Q475,520 500,580 Q560,640 660,640 Q760,640 820,600 Q860,560 800,500 Q720,460 680,420 Q620,360 560,340 Q500,320 470,300 Z');
   river.setAttribute('fill', '#b3d9ff');
-  river.setAttribute('opacity', '0.4');
+  river.setAttribute('opacity', '0.45');
   mapSvg.appendChild(river);
+
+  // Zone tint overlays (subtle — RMB red, HKD blue, MOP green)
+  const tintGroup = document.createElementNS(SVG_NS, 'g');
+  tintGroup.setAttribute('id', 'zone-tints');
+  // MOP zone: small blob around Macau
+  const mopTint = document.createElementNS(SVG_NS, 'circle');
+  mopTint.setAttribute('cx', '410'); mopTint.setAttribute('cy', '595');
+  mopTint.setAttribute('r', '70'); mopTint.setAttribute('fill', '#2ecc71');
+  mopTint.setAttribute('opacity', '0.09');
+  tintGroup.appendChild(mopTint);
+  // HKD zone: blob around NT + HK
+  const hkdTint = document.createElementNS(SVG_NS, 'ellipse');
+  hkdTint.setAttribute('cx', '800'); hkdTint.setAttribute('cy', '555');
+  hkdTint.setAttribute('rx', '100'); hkdTint.setAttribute('ry', '90');
+  hkdTint.setAttribute('fill', '#3498db');
+  hkdTint.setAttribute('opacity', '0.1');
+  tintGroup.appendChild(hkdTint);
+  // RMB zone: large wash over mainland cities
+  const rmbTint = document.createElementNS(SVG_NS, 'path');
+  rmbTint.setAttribute('d', 'M40,40 L680,40 L880,120 L920,250 L860,430 L740,410 L600,370 L550,430 L480,490 L360,470 L230,480 L120,400 L40,260 Z');
+  rmbTint.setAttribute('fill', '#e74c3c');
+  rmbTint.setAttribute('opacity', '0.06');
+  tintGroup.appendChild(rmbTint);
+  mapSvg.appendChild(tintGroup);
 
   // Render routes first (below cities)
   const routeGroup = document.createElementNS(SVG_NS, 'g');
@@ -140,28 +164,52 @@ function renderRoute(parent, route, gameState, onRouteClick) {
   const from = CITIES[route.from];
   const to = CITIES[route.to];
 
-  // Calculate positions for train car segments
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+  // Build polyline: from → (waypoints) → to
+  const pts = [{ x: from.x, y: from.y }];
+  if (route.waypoints) pts.push(...route.waypoints.map(w => ({ x: w.x, y: w.y })));
+  pts.push({ x: to.x, y: to.y });
 
-  // Offset for double routes
-  let offsetX = 0, offsetY = 0;
-  if (route.doubleOf >= 0) {
-    const perpAngle = (angle + 90) * Math.PI / 180;
-    const offset = route.id < route.doubleOf ? -8 : 8;
-    offsetX = Math.cos(perpAngle) * offset;
-    offsetY = Math.sin(perpAngle) * offset;
+  // Per-edge lengths and cumulative distance
+  const edges = [];
+  let totalDist = 0;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const edx = pts[i + 1].x - pts[i].x;
+    const edy = pts[i + 1].y - pts[i].y;
+    const edist = Math.sqrt(edx * edx + edy * edy);
+    const eangle = Math.atan2(edy, edx) * 180 / Math.PI;
+    edges.push({ x0: pts[i].x, y0: pts[i].y, dx: edx / (edist || 1), dy: edy / (edist || 1), dist: edist, angle: eangle, startDist: totalDist });
+    totalDist += edist;
   }
 
-  const startX = from.x + offsetX;
-  const startY = from.y + offsetY;
+  // Double-route perpendicular offset (uniform along polyline — use first-edge tangent)
+  let perpX = 0, perpY = 0;
+  if (route.doubleOf >= 0 && edges.length > 0) {
+    const firstAngle = edges[0].angle;
+    const perpAngle = (firstAngle + 90) * Math.PI / 180;
+    const offset = route.id < route.doubleOf ? -8 : 8;
+    perpX = Math.cos(perpAngle) * offset;
+    perpY = Math.sin(perpAngle) * offset;
+  }
 
-  const segLen = Math.min(28, (dist - 30) / route.length);
+  // Place segments along the polyline by arc length
+  const segLen = Math.min(26, (totalDist - 30) / route.length);
   const gap = 4;
-  const totalLen = route.length * segLen + (route.length - 1) * gap;
-  const startOffset = (dist - totalLen) / 2;
+  const runLen = route.length * segLen + (route.length - 1) * gap;
+  const startArc = (totalDist - runLen) / 2;
+
+  // Locate a point + tangent at a given arc length
+  function pointAtArc(arc) {
+    // Find the edge containing this arc length
+    for (let i = 0; i < edges.length; i++) {
+      const e = edges[i];
+      if (arc <= e.startDist + e.dist || i === edges.length - 1) {
+        const local = arc - e.startDist;
+        return { x: e.x0 + e.dx * local, y: e.y0 + e.dy * local, angle: e.angle };
+      }
+    }
+    const e = edges[edges.length - 1];
+    return { x: e.x0 + e.dx * e.dist, y: e.y0 + e.dy * e.dist, angle: e.angle };
+  }
 
   const g = document.createElementNS(SVG_NS, 'g');
   g.setAttribute('class', 'route-group');
@@ -171,10 +219,14 @@ function renderRoute(parent, route, gameState, onRouteClick) {
   const claimedBy = gameState.players.findIndex(p => p.claimedRoutes.includes(route.id));
   const isClaimed = claimedBy >= 0;
 
+  let iconPlaced = false;
+
   for (let i = 0; i < route.length; i++) {
-    const segOffset = startOffset + i * (segLen + gap);
-    const cx = startX + (dx / dist) * segOffset + (dx / dist) * segLen / 2;
-    const cy = startY + (dy / dist) * segOffset + (dy / dist) * segLen / 2;
+    const segArcStart = startArc + i * (segLen + gap);
+    const segArcMid = segArcStart + segLen / 2;
+    const p = pointAtArc(segArcMid);
+    const cx = p.x + perpX;
+    const cy = p.y + perpY;
 
     const rect = document.createElementNS(SVG_NS, 'rect');
     rect.setAttribute('x', cx - segLen / 2);
@@ -182,7 +234,7 @@ function renderRoute(parent, route, gameState, onRouteClick) {
     rect.setAttribute('width', segLen);
     rect.setAttribute('height', 14);
     rect.setAttribute('rx', '3');
-    rect.setAttribute('transform', `rotate(${angle}, ${cx}, ${cy})`);
+    rect.setAttribute('transform', `rotate(${p.angle}, ${cx}, ${cy})`);
 
     if (isClaimed) {
       rect.setAttribute('fill', PLAYER_COLORS[claimedBy]);
@@ -194,34 +246,36 @@ function renderRoute(parent, route, gameState, onRouteClick) {
       rect.setAttribute('fill', fillColor);
       rect.setAttribute('stroke', '#555');
       rect.setAttribute('stroke-width', '1');
-      rect.setAttribute('opacity', '0.7');
+      rect.setAttribute('opacity', '0.75');
     }
-
     g.appendChild(rect);
 
-    // Route type icons on the first segment
-    if (i === 0 && !isClaimed) {
-      if (route.type === ROUTE_TYPE.BRIDGE) {
+    // Route length numeral on the first segment
+    if (i === 0 && !isClaimed && route.type === ROUTE_TYPE.NORMAL) {
+      const lbl = document.createElementNS(SVG_NS, 'text');
+      lbl.setAttribute('x', cx);
+      lbl.setAttribute('y', cy + 3);
+      lbl.setAttribute('text-anchor', 'middle');
+      lbl.setAttribute('class', 'route-len');
+      lbl.textContent = route.length;
+      g.appendChild(lbl);
+    }
+
+    // Bridge/ferry icon near middle of the polyline
+    if (!iconPlaced && !isClaimed && i === Math.floor(route.length / 2)) {
+      if (route.type === ROUTE_TYPE.BRIDGE || route.type === ROUTE_TYPE.FERRY) {
         const icon = document.createElementNS(SVG_NS, 'text');
         icon.setAttribute('x', cx);
         icon.setAttribute('y', cy + 4);
         icon.setAttribute('text-anchor', 'middle');
         icon.setAttribute('class', 'route-icon');
-        icon.textContent = '\u{1F309}'; // bridge emoji
+        icon.textContent = route.type === ROUTE_TYPE.BRIDGE ? '\u{1F309}' : '\u{26F4}';
         g.appendChild(icon);
-      } else if (route.type === ROUTE_TYPE.FERRY) {
-        const icon = document.createElementNS(SVG_NS, 'text');
-        icon.setAttribute('x', cx);
-        icon.setAttribute('y', cy + 4);
-        icon.setAttribute('text-anchor', 'middle');
-        icon.setAttribute('class', 'route-icon');
-        icon.textContent = '\u{26F4}'; // ferry emoji
-        g.appendChild(icon);
+        iconPlaced = true;
       }
     }
   }
 
-  // Click handler for unclaimed routes
   if (!isClaimed) {
     g.style.cursor = 'pointer';
     g.addEventListener('click', () => onRouteClick(route.id));
