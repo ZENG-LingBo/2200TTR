@@ -186,9 +186,9 @@ function renderRoute(parent, route, gameState, onRouteClick) {
 
     if (isClaimed) {
       rect.setAttribute('fill', PLAYER_COLORS[claimedBy]);
-      rect.setAttribute('stroke', '#fff');
-      rect.setAttribute('stroke-width', '1.5');
-      rect.setAttribute('opacity', '0.9');
+      rect.setAttribute('stroke', '#000');
+      rect.setAttribute('stroke-width', '2');
+      rect.setAttribute('opacity', '1');
     } else {
       const fillColor = route.color === 'gray' ? COLOR_HEX.gray : COLOR_HEX[route.color];
       rect.setAttribute('fill', fillColor);
@@ -219,6 +219,33 @@ function renderRoute(parent, route, gameState, onRouteClick) {
         g.appendChild(icon);
       }
     }
+  }
+
+  // Player ownership badge on claimed routes
+  if (isClaimed) {
+    const midI = Math.floor(route.length / 2);
+    const midOffset = startOffset + midI * (segLen + gap) + segLen / 2;
+    const bx = startX + (dx / dist) * midOffset;
+    const by = startY + (dy / dist) * midOffset;
+
+    const badge = document.createElementNS(SVG_NS, 'circle');
+    badge.setAttribute('cx', bx);
+    badge.setAttribute('cy', by);
+    badge.setAttribute('r', '10');
+    badge.setAttribute('fill', '#fff');
+    badge.setAttribute('stroke', PLAYER_COLORS[claimedBy]);
+    badge.setAttribute('stroke-width', '3');
+    g.appendChild(badge);
+
+    const badgeText = document.createElementNS(SVG_NS, 'text');
+    badgeText.setAttribute('x', bx);
+    badgeText.setAttribute('y', by + 4);
+    badgeText.setAttribute('text-anchor', 'middle');
+    badgeText.setAttribute('font-size', '12');
+    badgeText.setAttribute('font-weight', '700');
+    badgeText.setAttribute('fill', PLAYER_COLORS[claimedBy]);
+    badgeText.textContent = `P${claimedBy + 1}`;
+    g.appendChild(badgeText);
   }
 
   // Click handler for unclaimed routes
@@ -878,7 +905,7 @@ const WALKTHROUGH_STEPS = [
         <li><strong>¥ RMB</strong> — Mainland (Guangzhou, Shenzhen, Foshan, …) → <strong>+3 pts</strong></li>
         <li><strong>$ HKD</strong> — Hong Kong zone → <strong>+5 pts</strong></li>
         <li><strong>P MOP</strong> — Macau → <strong>+7 pts</strong></li>
-        <li>Card counts scale by zone size: <strong>6 RMB · 4 HKD · 2 MOP</strong> (12 total). <em>Not</em> train cards — they can't pay route length.</li>
+        <li>Card counts scale by zone size: <strong>4 RMB · 2 HKD · 2 MOP</strong> (8 total). <em>Not</em> train cards — they can't pay route length.</li>
         <li>Rarer currencies give bigger bonuses! (see step 13)</li>
       </ul>
     `,
@@ -965,7 +992,7 @@ const WALKTHROUGH_STEPS = [
         ${mockCard('locomotive', '🚂')}
         ${mockCard('yellow', '')}
         ${mockCard('green', '')}
-        <div class="wt-deck-mock">Deck<br>(112)</div>
+        <div class="wt-deck-mock">Deck<br>(108)</div>
       </div>
       <ul class="wt-list wt-small">
         <li>Take <strong>2 cards</strong> per turn — each one from either the face-up row or the deck</li>
