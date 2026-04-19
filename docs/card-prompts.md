@@ -146,7 +146,7 @@ COLOR VARIABLES:
 - Accent gold: #f1c40f
 - Text white: #ffffff
 
-DELIVERABLES: 1 PDF + 1 PNG at 300 DPI. Print run: 6 copies.
+DELIVERABLES: 1 PDF + 1 PNG at 300 DPI. Print run: 6 copies (most-common zone).
 ```
 
 ---
@@ -180,7 +180,7 @@ COLOR VARIABLES:
 - Accent silver: #bdc3c7
 - Accent pink (bauhinia): #e91e63
 
-DELIVERABLES: 1 PDF + 1 PNG at 300 DPI. Print run: 6 copies.
+DELIVERABLES: 1 PDF + 1 PNG at 300 DPI. Print run: 4 copies.
 ```
 
 ---
@@ -213,7 +213,7 @@ COLOR VARIABLES:
 - Accent cream: #fff3e0
 - Accent warm stone: #c9a47a
 
-DELIVERABLES: 1 PDF + 1 PNG at 300 DPI. Print run: 6 copies.
+DELIVERABLES: 1 PDF + 1 PNG at 300 DPI. Print run: 2 copies (rare-zone, high-value).
 ```
 
 ---
@@ -308,7 +308,7 @@ COLOR VARIABLES:
 - Wave blue: #3498db
 
 DELIVERABLES: 1 PDF + 1 PNG at 300 DPI. Printed on the back of all
-train-deck cards (128 total: 96 colors + 14 locos + 18 currency).
+train-deck cards (122 total: 96 colors + 14 locos + 12 currency).
 ```
 
 ---
@@ -467,14 +467,16 @@ DELIVERABLES:
 |-----------------------|---------|-------------|---------------|
 | Train cards (8 cols)  | 8       | 12          | 96            |
 | Locomotive            | 1       | 14          | 14            |
-| Currency ¥/$/P        | 3       | 6           | 18            |
+| Currency ¥ RMB        | 1       | 6           | 6             |
+| Currency $ HKD        | 1       | 4           | 4             |
+| Currency P MOP        | 1       | 2           | 2             |
 | Destination tickets   | 15      | 1           | 15            |
-| Train card back       | 1       | — (printed on back of all 128 train-deck cards) | — |
+| Train card back       | 1       | — (printed on back of all 122 train-deck cards) | — |
 | Ticket card back      | 1       | — (printed on back of all 15 tickets)           | — |
 | Player reference      | 4       | 1           | 4             |
 | Rules booklet cover   | 1       | 1           | 1             |
 | Train pieces (STL)    | 1       | 140         | 140 pieces    |
-| **Total card copies** |         |             | **147 cards** |
+| **Total card copies** |         |             | **141 cards** |
 
 Pair with a printed game board (A2), 4 scoring markers, rules booklet
 interior (6 pages), and a storage box.

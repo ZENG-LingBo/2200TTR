@@ -2,7 +2,7 @@
 
 import {
   CITIES, ROUTES, TICKETS, CARD_COLORS, LOCO, CURRENCY_TYPES,
-  CARDS_PER_COLOR, LOCO_COUNT, CURRENCY_PER_TYPE,
+  CARDS_PER_COLOR, LOCO_COUNT, CURRENCY_COUNTS,
   TRAINS_PER_PLAYER, STARTING_HAND, END_TRIGGER, CURRENCY_BONUS,
   CURRENCY_BONUS_VALUES, LONGEST_PATH_BONUS, ROUTE_TYPE, DEFAULT_NUM_PLAYERS,
   getRoutePoints, DOUBLE_ROUTE_PAIRS,
@@ -25,7 +25,8 @@ function buildDeck() {
   }
   for (let i = 0; i < LOCO_COUNT; i++) deck.push(LOCO);
   for (const cur of CURRENCY_TYPES) {
-    for (let i = 0; i < CURRENCY_PER_TYPE; i++) deck.push(cur);
+    const count = CURRENCY_COUNTS[cur] || 0;
+    for (let i = 0; i < count; i++) deck.push(cur);
   }
   return shuffle(deck);
 }

@@ -932,7 +932,7 @@ const WALKTHROUGH_STEPS = [
         <li><strong>¥ RMB</strong> — Mainland (Guangzhou, Shenzhen, Foshan, …) → <strong>+3 pts</strong></li>
         <li><strong>$ HKD</strong> — Hong Kong zone → <strong>+5 pts</strong></li>
         <li><strong>P MOP</strong> — Macau → <strong>+7 pts</strong></li>
-        <li>6 of each (18 total). <em>Not</em> train cards — they can't pay route length.</li>
+        <li>Card counts scale by zone size: <strong>6 RMB · 4 HKD · 2 MOP</strong> (12 total). <em>Not</em> train cards — they can't pay route length.</li>
         <li>Rarer currencies give bigger bonuses! (see step 13)</li>
       </ul>
     `,
@@ -1019,7 +1019,7 @@ const WALKTHROUGH_STEPS = [
         ${mockCard('locomotive', '🚂')}
         ${mockCard('yellow', '')}
         ${mockCard('green', '')}
-        <div class="wt-deck-mock">Deck<br>(118)</div>
+        <div class="wt-deck-mock">Deck<br>(112)</div>
       </div>
       <ul class="wt-list wt-small">
         <li>Take <strong>2 cards</strong> per turn — each one from either the face-up row or the deck</li>

@@ -42,7 +42,7 @@ export const PLAYER_NAMES = DEFAULT_PLAYER_NAMES;
 // ── Deck composition ──
 export const CARDS_PER_COLOR = 12;
 export const LOCO_COUNT = 14;
-export const CURRENCY_PER_TYPE = 6;
+export const CURRENCY_COUNTS = { RMB: 6, HKD: 4, MOP: 2 };
 
 // ── Route types ──
 export const ROUTE_TYPE = {
