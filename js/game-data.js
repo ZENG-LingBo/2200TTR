@@ -66,22 +66,22 @@ export const ZONES = { RMB: 'RMB', HKD: 'HKD', MOP: 'MOP' };
 
 // ── Cities ──
 export const CITIES = [
-  { id: 0,  name: 'Zhaoqing',  chinese: '肇庆',  zone: 'RMB', x: 80,  y: 235 },
-  { id: 1,  name: 'Suihui',    chinese: '三水',  zone: 'RMB', x: 230, y: 150 },
-  { id: 2,  name: 'Foshan',    chinese: '佛山',  zone: 'RMB', x: 315, y: 245 },
-  { id: 3,  name: 'Guangzhou', chinese: '广州',  zone: 'RMB', x: 395, y: 170 },
-  { id: 4,  name: 'Huadu',     chinese: '花都区', zone: 'RMB', x: 425, y: 50  },
-  { id: 5,  name: 'Jiangmen',  chinese: '江门',  zone: 'RMB', x: 270, y: 420 },
-  { id: 6,  name: 'Zhongshan', chinese: '中山',  zone: 'RMB', x: 425, y: 440 },
-  { id: 7,  name: 'Dongguan',  chinese: '东莞',  zone: 'RMB', x: 570, y: 215 },
-  { id: 8,  name: 'Humen',     chinese: '虎门',  zone: 'RMB', x: 530, y: 325 },
-  { id: 9,  name: 'Huizhou',   chinese: '惠州',  zone: 'RMB', x: 880, y: 175 },
-  { id: 10, name: 'Longgang',  chinese: '龙岗区', zone: 'RMB', x: 790, y: 340 },
-  { id: 11, name: 'Shenzhen',  chinese: '深圳',  zone: 'RMB', x: 715, y: 445 },
-  { id: 12, name: 'Zhuhai',    chinese: '珠海',  zone: 'RMB', x: 460, y: 535 },
-  { id: 13, name: 'Macau',     chinese: '澳门',  zone: 'MOP', x: 410, y: 595 },
-  { id: 14, name: 'NT',        chinese: '新界',  zone: 'HKD', x: 770, y: 505 },
-  { id: 15, name: 'Hong Kong', chinese: '香港',  zone: 'HKD', x: 835, y: 600 },
+  { id: 0,  name: 'Zhaoqing',  chinese: '肇庆',  zone: 'RMB', x: 100, y: 215 },
+  { id: 1,  name: 'Suihui',    chinese: '三水',  zone: 'RMB', x: 245, y: 165 },
+  { id: 2,  name: 'Foshan',    chinese: '佛山',  zone: 'RMB', x: 345, y: 230 },
+  { id: 3,  name: 'Guangzhou', chinese: '广州',  zone: 'RMB', x: 398, y: 178 },
+  { id: 4,  name: 'Huadu',     chinese: '花都区', zone: 'RMB', x: 380, y: 60  },
+  { id: 5,  name: 'Jiangmen',  chinese: '江门',  zone: 'RMB', x: 330, y: 400 },
+  { id: 6,  name: 'Zhongshan', chinese: '中山',  zone: 'RMB', x: 446, y: 430 },
+  { id: 7,  name: 'Dongguan',  chinese: '东莞',  zone: 'RMB', x: 582, y: 220 },
+  { id: 8,  name: 'Humen',     chinese: '虎门',  zone: 'RMB', x: 552, y: 315 },
+  { id: 9,  name: 'Huizhou',   chinese: '惠州',  zone: 'RMB', x: 835, y: 190 },
+  { id: 10, name: 'Longgang',  chinese: '龙岗区', zone: 'RMB', x: 770, y: 360 },
+  { id: 11, name: 'Shenzhen',  chinese: '深圳',  zone: 'RMB', x: 698, y: 440 },
+  { id: 12, name: 'Zhuhai',    chinese: '珠海',  zone: 'RMB', x: 518, y: 545 },
+  { id: 13, name: 'Macau',     chinese: '澳门',  zone: 'MOP', x: 506, y: 575 },
+  { id: 14, name: 'NT',        chinese: '新界',  zone: 'HKD', x: 740, y: 490 },
+  { id: 15, name: 'Hong Kong', chinese: '香港',  zone: 'HKD', x: 740, y: 570 },
 ];
 
 // ── Routes ──
@@ -102,32 +102,32 @@ export const ROUTES = [
   { id: 11, from: 3,  to: 7,  length: 3, color: 'blue',   type: 'normal', doubleOf: 10 },
   { id: 12, from: 3,  to: 8,  length: 3, color: 'green',  type: 'normal', doubleOf: -1 },
   { id: 13, from: 4,  to: 7,  length: 4, color: 'purple', type: 'normal', doubleOf: -1 },
-  { id: 14, from: 7,  to: 9,  length: 4, color: 'yellow', type: 'normal', doubleOf: -1, waypoints: [{ x: 735, y: 160 }] },
+  { id: 14, from: 7,  to: 9,  length: 4, color: 'yellow', type: 'normal', doubleOf: -1 },
   { id: 15, from: 7,  to: 8,  length: 2, color: 'orange', type: 'normal', doubleOf: -1 },
   { id: 16, from: 7,  to: 10, length: 3, color: 'white',  type: 'normal', doubleOf: -1 },
   { id: 17, from: 7,  to: 11, length: 3, color: 'black',  type: 'normal', doubleOf: -1 },
-  { id: 18, from: 9,  to: 10, length: 3, color: 'green',  type: 'normal', doubleOf: -1, waypoints: [{ x: 880, y: 275 }] },
+  { id: 18, from: 9,  to: 10, length: 3, color: 'green',  type: 'normal', doubleOf: -1 },
   { id: 19, from: 10, to: 11, length: 2, color: 'red',    type: 'normal', doubleOf: -1 },
   { id: 20, from: 5,  to: 6,  length: 2, color: 'yellow', type: 'normal', doubleOf: -1 },
   { id: 21, from: 6,  to: 12, length: 2, color: 'purple', type: 'normal', doubleOf: -1 },
   { id: 22, from: 5,  to: 12, length: 3, color: 'white',  type: 'normal', doubleOf: -1 },
   { id: 23, from: 6,  to: 13, length: 3, color: 'blue',   type: 'normal', doubleOf: -1 },
-  { id: 24, from: 10, to: 14, length: 3, color: 'orange', type: 'normal', doubleOf: -1, waypoints: [{ x: 840, y: 430 }] },
-  { id: 25, from: 9,  to: 11, length: 4, color: 'red',    type: 'normal', doubleOf: -1, waypoints: [{ x: 870, y: 320 }] },
+  { id: 24, from: 10, to: 14, length: 3, color: 'orange', type: 'normal', doubleOf: -1 },
+  { id: 25, from: 9,  to: 11, length: 4, color: 'red',    type: 'normal', doubleOf: -1 },
 
   // Bridge routes (6) — 2× points, +1 loco cost
   { id: 26, from: 8,  to: 6,  length: 4, color: 'gray', type: 'bridge', doubleOf: -1 }, // Humen Bridge
-  { id: 27, from: 11, to: 6,  length: 5, color: 'gray', type: 'bridge', doubleOf: -1, waypoints: [{ x: 600, y: 505 }, { x: 500, y: 490 }] }, // SZ-ZS Link
-  { id: 28, from: 15, to: 12, length: 6, color: 'gray', type: 'bridge', doubleOf: -1, waypoints: [{ x: 640, y: 635 }] }, // HK-ZH-Macau Bridge
+  { id: 27, from: 11, to: 6,  length: 5, color: 'gray', type: 'bridge', doubleOf: -1 }, // SZ-ZS Link
+  { id: 28, from: 15, to: 12, length: 6, color: 'gray', type: 'bridge', doubleOf: -1 }, // HK-ZH-Macau Bridge
   { id: 29, from: 11, to: 14, length: 2, color: 'gray', type: 'bridge', doubleOf: -1 }, // SZ Bay Bridge
   { id: 30, from: 14, to: 15, length: 2, color: 'gray', type: 'bridge', doubleOf: -1 }, // Tolo Hwy
-  { id: 31, from: 8,  to: 11, length: 4, color: 'gray', type: 'bridge', doubleOf: -1, waypoints: [{ x: 560, y: 410 }] }, // Nansha Bridge
+  { id: 31, from: 8,  to: 11, length: 4, color: 'gray', type: 'bridge', doubleOf: -1 }, // Nansha Bridge
 
   // Ferry routes (4) — 1.5× points, ≥1 loco required
   { id: 32, from: 12, to: 13, length: 1, color: 'gray', type: 'ferry', doubleOf: -1 }, // Zhuhai-Macau
   { id: 33, from: 11, to: 15, length: 3, color: 'gray', type: 'ferry', doubleOf: -1 }, // Shekou-HK
-  { id: 34, from: 11, to: 12, length: 4, color: 'gray', type: 'ferry', doubleOf: -1, waypoints: [{ x: 615, y: 555 }] }, // Cross-delta
-  { id: 35, from: 15, to: 13, length: 5, color: 'gray', type: 'ferry', doubleOf: -1, waypoints: [{ x: 620, y: 640 }] }, // TurboJET
+  { id: 34, from: 11, to: 12, length: 4, color: 'gray', type: 'ferry', doubleOf: -1 }, // Cross-delta
+  { id: 35, from: 15, to: 13, length: 5, color: 'gray', type: 'ferry', doubleOf: -1 }, // TurboJET
 ];
 
 // ── Destination Tickets ──
