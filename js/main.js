@@ -8,6 +8,7 @@ import {
   highlightClaimable, showMessage, showModal, showTicketPicker,
   showEndGameModal, setDrawTicketsBtn, setClaimBtn, disableActions,
   showSetupScreen, showPassDeviceScreen, setPlayerInfo, getPlayerName,
+  showWalkthrough,
 } from './game-render.js';
 import { aiTakeTurn, aiPickTickets } from './game-ai.js';
 
@@ -27,6 +28,12 @@ function humanCount() { return playerTypes.filter(t => t === 'human').length; }
 // ── Initialize ──
 
 async function startGame() {
+  // First-time onboarding walkthrough (skippable, remembered via localStorage)
+  if (localStorage.getItem('gba-tutorial-seen') !== '1') {
+    await showWalkthrough();
+    localStorage.setItem('gba-tutorial-seen', '1');
+  }
+
   // Setup screen
   const setup = await showSetupScreen();
   playerNames = setup.names;
@@ -157,9 +164,12 @@ function bindEvents() {
 
   document.getElementById('rules-btn').addEventListener('click', showRules);
 
+  const tutorialBtn = document.getElementById('tutorial-btn');
+  if (tutorialBtn) tutorialBtn.addEventListener('click', () => showWalkthrough());
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      const overlay = document.querySelector('.modal-overlay:not(.pass-device-overlay):not(.setup-overlay)');
+      const overlay = document.querySelector('.modal-overlay:not(.pass-device-overlay):not(.setup-overlay):not(.walkthrough-overlay)');
       if (overlay) overlay.remove();
     }
   });

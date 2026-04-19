@@ -696,6 +696,424 @@ export function showPassDeviceScreen(playerIdx) {
   });
 }
 
+// ── Onboarding walkthrough ──
+
+// Helper: build a mock card element as HTML string
+function mockCard(type, label) {
+  const lbl = label !== undefined ? label : (
+    type === LOCO ? '🚂' :
+    type === 'RMB' ? '¥' :
+    type === 'HKD' ? '$' :
+    type === 'MOP' ? 'P' : ''
+  );
+  return `<div class="card wt-card card-${type}"><span class="card-label">${lbl}</span></div>`;
+}
+
+// Helper: build a tiny mock SVG map for walkthrough steps
+function miniMapSvg({ bridge = false, ferry = false, double = false, routeColor = 'red' } = {}) {
+  const colorHex = COLOR_HEX[routeColor] || '#e74c3c';
+  const bridgeIcon = bridge ? `<text x="190" y="75" text-anchor="middle" font-size="14">🌉</text>` : '';
+  const ferryIcon = ferry ? `<text x="110" y="125" text-anchor="middle" font-size="14">⛴</text>` : '';
+  // Double route: draw two parallel lines between city A and B
+  const doubleLine = double ? `
+    <g>
+      ${[0,1,2].map(i => `<rect x="${55 + i*25}" y="52" width="18" height="10" rx="2" fill="#f1c40f" stroke="#555" stroke-width="0.8"/>`).join('')}
+      ${[0,1,2].map(i => `<rect x="${55 + i*25}" y="68" width="18" height="10" rx="2" fill="#9b59b6" stroke="#555" stroke-width="0.8"/>`).join('')}
+    </g>
+  ` : '';
+
+  return `
+    <svg class="mini-map" viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="260" height="160" rx="8" fill="url(#wtWater)"/>
+      <defs>
+        <linearGradient id="wtWater" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#d4e6f1"/>
+          <stop offset="100%" stop-color="#aed6f1"/>
+        </linearGradient>
+      </defs>
+      ${double ? doubleLine : `
+        <g>
+          ${[0,1,2].map(i => `<rect x="${60 + i*34}" y="60" width="26" height="12" rx="2" fill="${colorHex}" stroke="#555" stroke-width="1" opacity="0.85"/>`).join('')}
+        </g>
+      `}
+      ${bridge ? `<g>
+        ${[0,1,2,3].map(i => `<rect x="${160 + i*22}" y="60" width="16" height="12" rx="2" fill="#95a5a6" stroke="#555" stroke-width="1" transform="rotate(25 ${168 + i*22} 66)"/>`).join('')}
+      </g>` : ''}
+      ${ferry ? `<g>
+        ${[0,1,2].map(i => `<rect x="${60 + i*22}" y="110" width="16" height="12" rx="2" fill="#95a5a6" stroke="#555" stroke-width="1" opacity="0.8"/>`).join('')}
+      </g>` : ''}
+      <!-- Cities -->
+      <circle cx="45" cy="65" r="9" fill="#00bcd4" stroke="#006064" stroke-width="2"/>
+      <text x="45" y="50" text-anchor="middle" font-size="10" font-weight="700" fill="#1a1a2e" stroke="#fff" stroke-width="2" paint-order="stroke">Foshan</text>
+      <circle cx="155" cy="65" r="9" fill="#00bcd4" stroke="#006064" stroke-width="2"/>
+      <text x="155" y="50" text-anchor="middle" font-size="10" font-weight="700" fill="#1a1a2e" stroke="#fff" stroke-width="2" paint-order="stroke">Guangzhou</text>
+      ${bridge ? `<circle cx="245" cy="95" r="9" fill="#00bcd4" stroke="#006064" stroke-width="2"/><text x="245" y="120" text-anchor="middle" font-size="10" font-weight="700" fill="#1a1a2e" stroke="#fff" stroke-width="2" paint-order="stroke">HK</text>` : ''}
+      ${ferry ? `<circle cx="45" cy="135" r="9" fill="#00bcd4" stroke="#006064" stroke-width="2"/><text x="45" y="155" text-anchor="middle" font-size="10" font-weight="700" fill="#1a1a2e" stroke="#fff" stroke-width="2" paint-order="stroke">Macau</text><circle cx="155" cy="135" r="9" fill="#00bcd4" stroke="#006064" stroke-width="2"/><text x="155" y="155" text-anchor="middle" font-size="10" font-weight="700" fill="#1a1a2e" stroke="#fff" stroke-width="2" paint-order="stroke">Zhuhai</text>` : ''}
+      ${bridgeIcon}
+      ${ferryIcon}
+    </svg>
+  `;
+}
+
+const WALKTHROUGH_STEPS = [
+  // 1. Welcome
+  {
+    title: 'Welcome to GBA Ticket to Ride',
+    html: `
+      <div class="wt-hero">🚂 🌉 ⛴</div>
+      <p>Build train routes across China's <strong>Greater Bay Area</strong> — 11 cities plus Hong Kong and Macau — using real-world bridges and ferries.</p>
+      <p class="wt-dim">This quick tour (≈ 1 min) covers every card, route type, and action. You can skip it any time.</p>
+    `,
+  },
+  // 2. Objective
+  {
+    title: 'Objective',
+    html: `
+      <p>Score more points than your opponents by:</p>
+      <ul class="wt-list">
+        <li>🛤 <strong>Claiming routes</strong> between cities (points scale with length)</li>
+        <li>🎫 <strong>Completing destination tickets</strong> (big bonus points)</li>
+        <li>🏆 <strong>Building the longest continuous path</strong> (+10 pts)</li>
+      </ul>
+      <p class="wt-callout">Game ends when any player has <strong>≤ 3 trains</strong> left — everyone gets one last turn, then final scoring.</p>
+    `,
+  },
+  // 3. Top Bar
+  {
+    title: 'UI Tour — Top Bar',
+    html: `
+      <div class="wt-topbar-mock">
+        <span class="wt-mock-title">GBA <em>Ticket to Ride</em></span>
+        <span class="wt-mock-scores"><span style="color:#2196F3">You: 12 pts | 28 trains</span>&nbsp;|&nbsp;<span style="color:#F44336">AI: 7 pts | 30 trains</span></span>
+        <span class="wt-mock-turn">Your Turn</span>
+        <span class="wt-mock-btn">📖</span>
+        <span class="wt-mock-btn">?</span>
+      </div>
+      <ul class="wt-list wt-small">
+        <li><strong>Scores + trains</strong> — live scoreboard for every player</li>
+        <li><strong>Turn indicator</strong> — whose turn it is right now (colored by player)</li>
+        <li><strong>📖 Tutorial</strong> — replay this walkthrough any time</li>
+        <li><strong>? Rules</strong> — quick text reference</li>
+      </ul>
+    `,
+  },
+  // 4. Map
+  {
+    title: 'UI Tour — The Map',
+    html: `
+      ${miniMapSvg({ bridge: true, ferry: true, routeColor: 'red' })}
+      <ul class="wt-list wt-small">
+        <li><strong>Cyan circles</strong> — cities (English + Chinese labels)</li>
+        <li><strong>Colored rectangles</strong> — route segments. Count = number of matching cards you need.</li>
+        <li><strong>🌉 Bridge icon</strong> / <strong>⛴ Ferry icon</strong> — special routes (see steps 10 & 11)</li>
+        <li>Routes you can <strong>currently afford</strong> will <em>glow and pulse</em> on the real map</li>
+      </ul>
+    `,
+  },
+  // 5. Bottom panel
+  {
+    title: 'UI Tour — Bottom Panel',
+    html: `
+      <div class="wt-bottompanel-mock">
+        <div class="wt-panel-half">
+          <div class="wt-panel-label">ACTIONS (left)</div>
+          <ul class="wt-list wt-small">
+            <li>5 face-up cards you can take</li>
+            <li>Draw Deck / Draw Tickets / Claim Route buttons</li>
+            <li>Selected-route info + cost breakdown</li>
+            <li>Game message log</li>
+          </ul>
+        </div>
+        <div class="wt-panel-half">
+          <div class="wt-panel-label">YOUR RESOURCES (right)</div>
+          <ul class="wt-list wt-small">
+            <li>Your hand (cards grouped by type with counts)</li>
+            <li>Your destination tickets — green = done, red = not yet</li>
+          </ul>
+        </div>
+      </div>
+    `,
+  },
+  // 6. Train cards
+  {
+    title: 'Train Cards — 8 Colors',
+    html: `
+      <div class="wt-card-row">
+        ${['red','orange','yellow','green','blue','purple','white','black'].map(c => mockCard(c, '')).join('')}
+      </div>
+      <ul class="wt-list wt-small">
+        <li><strong>12 cards of each color</strong> in the deck (96 train cards total)</li>
+        <li>Used to pay for routes — you need <strong>matching-color cards</strong> equal to the route's length</li>
+        <li><strong>Gray routes</strong> (bridges, ferries) accept <strong>any single color</strong></li>
+      </ul>
+    `,
+  },
+  // 7. Locomotive cards
+  {
+    title: 'Locomotive Cards 🚂 — Wild',
+    html: `
+      <div class="wt-card-row wt-card-row-center">
+        ${mockCard('locomotive', '🚂')}
+        ${mockCard('locomotive', '🚂')}
+        ${mockCard('locomotive', '🚂')}
+      </div>
+      <ul class="wt-list wt-small">
+        <li><strong>14 locomotives</strong> in the deck — wild, substitute for any color</li>
+        <li>⚠️ Taking a <strong>face-up locomotive</strong> uses your <em>whole</em> draw turn (1 card, not 2)</li>
+        <li>Required: <strong>+1 locomotive for bridges</strong>, <strong>≥1 locomotive for ferries</strong></li>
+        <li>Special rule: if 3+ face-up cards become locomotives, all 5 are discarded and refilled</li>
+      </ul>
+    `,
+  },
+  // 8. Currency cards
+  {
+    title: 'Currency Cards — ¥ $ P',
+    html: `
+      <div class="wt-card-row wt-card-row-center">
+        ${mockCard('RMB', '¥')}
+        ${mockCard('HKD', '$')}
+        ${mockCard('MOP', 'P')}
+      </div>
+      <ul class="wt-list wt-small">
+        <li><strong>¥ RMB</strong> — Mainland (Guangzhou, Shenzhen, Foshan, …)</li>
+        <li><strong>$ HKD</strong> — Hong Kong zone</li>
+        <li><strong>P MOP</strong> — Macau</li>
+        <li>6 of each (18 total). <em>Not</em> train cards — they can't pay route length.</li>
+        <li>Used only for the <strong>Currency Bonus</strong> (see step 13)</li>
+      </ul>
+    `,
+  },
+  // 9. Normal routes
+  {
+    title: 'Normal Routes',
+    html: `
+      ${miniMapSvg({ routeColor: 'red' })}
+      <ul class="wt-list wt-small">
+        <li>Pay <strong>matching-color train cards</strong> equal to the route's length</li>
+        <li>Gray routes accept <strong>any single color</strong> (all cards the same color)</li>
+        <li>Locomotives can substitute for any color</li>
+      </ul>
+      <div class="wt-callout">
+        <strong>Scoring:</strong> Length 1→1pt · 2→2 · 3→4 · 4→7 · 5→10 · 6→15
+      </div>
+    `,
+  },
+  // 10. Bridges
+  {
+    title: '🌉 Bridge Routes — 2× points',
+    html: `
+      ${miniMapSvg({ bridge: true, routeColor: 'red' })}
+      <ul class="wt-list wt-small">
+        <li>Cost = <strong>route length + 1 extra locomotive</strong></li>
+        <li>Score: <strong>2× normal points</strong> — a 6-bridge = <strong>30 pts!</strong></li>
+        <li>Real-world bridges: HK–Zhuhai–Macau (2018), Shenzhen–Zhongshan Link (2024), Humen (1997), Nansha (2019), Shenzhen Bay, Tolo Hwy</li>
+      </ul>
+    `,
+  },
+  // 11. Ferries
+  {
+    title: '⛴ Ferry Routes — 1.5× points',
+    html: `
+      ${miniMapSvg({ ferry: true, routeColor: 'blue' })}
+      <ul class="wt-list wt-small">
+        <li>Cost = length, but <strong>≥ 1 locomotive must be in the payment</strong></li>
+        <li>Score: <strong>1.5× normal points</strong>, rounded up — a 5-ferry = 15 pts</li>
+        <li>Real-world ferries: Shekou–HK, TurboJET (HK–Macau), Zhuhai–Macau, cross-delta</li>
+      </ul>
+    `,
+  },
+  // 12. Double routes
+  {
+    title: 'Double Routes',
+    html: `
+      ${miniMapSvg({ double: true })}
+      <p>Two cities sometimes have <strong>parallel routes</strong> (different colors side-by-side).</p>
+      <ul class="wt-list wt-small">
+        <li><strong>2–3 players:</strong> only <em>one</em> of the pair can be claimed — first come, first served</li>
+        <li><strong>4 players:</strong> both can be claimed, but by <em>different</em> players</li>
+        <li>You can never claim both sides of a pair yourself</li>
+      </ul>
+    `,
+  },
+  // 13. Currency bonus
+  {
+    title: '💰 Currency Bonus — +3 pts',
+    html: `
+      <div class="wt-card-row wt-card-row-center">
+        ${mockCard('RMB', '¥')}
+        <span class="wt-plus">+</span>
+        ${miniMapSvg({ routeColor: 'red' })}
+        <span class="wt-eq">=</span>
+        <span class="wt-bonus">+3 pts!</span>
+      </div>
+      <ul class="wt-list wt-small">
+        <li>When claiming a route where <strong>both endpoint cities are in the same currency zone</strong>…</li>
+        <li>…you may discard <strong>one matching currency card</strong> for <strong>+3 bonus points</strong></li>
+        <li>Example: Zhuhai (RMB) → Foshan (RMB) → discard one ¥ RMB card → +3</li>
+        <li>A checkbox <em>"Use currency card (+3 pts)"</em> appears in the route info panel when eligible</li>
+      </ul>
+    `,
+  },
+  // 14. Draw cards
+  {
+    title: 'Action 1 — Draw Train Cards',
+    html: `
+      <div class="wt-card-row">
+        ${mockCard('red', '')}
+        ${mockCard('blue', '')}
+        ${mockCard('locomotive', '🚂')}
+        ${mockCard('yellow', '')}
+        ${mockCard('green', '')}
+        <div class="wt-deck-mock">Deck<br>(118)</div>
+      </div>
+      <ul class="wt-list wt-small">
+        <li>Take <strong>2 cards</strong> per turn — each one from either the face-up row or the deck</li>
+        <li>⚠️ A <strong>face-up locomotive</strong> takes your <em>whole</em> draw turn (only 1 card)</li>
+        <li>Drawing from the <strong>deck</strong> is blind (any color)</li>
+      </ul>
+    `,
+  },
+  // 15. Claim route
+  {
+    title: 'Action 2 — Claim a Route',
+    html: `
+      <ol class="wt-list wt-small wt-ordered">
+        <li>Click any <strong>glowing route</strong> on the map — it becomes selected</li>
+        <li>The <strong>selected-route info</strong> panel shows cost breakdown + points</li>
+        <li>(Optional) tick <strong>☑ Use currency card</strong> if both cities share a zone</li>
+        <li>Click <strong>Claim Route</strong> — cards are spent, route turns your color, points added</li>
+      </ol>
+      <div class="wt-callout">
+        Claiming costs <strong>trains</strong> equal to the route's length (you start with 35).
+      </div>
+    `,
+  },
+  // 16. Draw tickets
+  {
+    title: 'Action 3 — Draw Destination Tickets',
+    html: `
+      <div class="wt-tickets-mock">
+        <div class="ticket ticket-complete"><span class="ticket-cities">Guangzhou → Shenzhen</span><span class="ticket-pts">10</span></div>
+        <div class="ticket ticket-incomplete"><span class="ticket-cities">Zhaoqing → Hong Kong</span><span class="ticket-pts">15</span></div>
+      </div>
+      <ul class="wt-list wt-small">
+        <li>Draw <strong>3 tickets</strong>, keep at least <strong>1</strong> (≥2 at game start)</li>
+        <li>At game end: <strong>connected</strong> endpoints → <strong>+points</strong> · not connected → <strong>−points</strong></li>
+        <li>Risk vs reward — long tickets pay big but are harder to complete</li>
+      </ul>
+    `,
+  },
+  // 17. Ready
+  {
+    title: "You're Ready to Play! 🎉",
+    html: `
+      <div class="wt-recap">
+        <div class="wt-recap-item"><div class="wt-recap-num">3</div><div>actions per turn</div></div>
+        <div class="wt-recap-item"><div class="wt-recap-num">3</div><div>route types</div></div>
+        <div class="wt-recap-item"><div class="wt-recap-num">3</div><div>currencies</div></div>
+        <div class="wt-recap-item"><div class="wt-recap-num">3</div><div>ways to score</div></div>
+      </div>
+      <p class="wt-dim">Replay this tour any time from the <strong>📖 Tutorial</strong> button in the top bar.</p>
+      <p>Next: pick 2–4 players (humans, AI, or a mix) on the setup screen.</p>
+    `,
+  },
+];
+
+export function showWalkthrough() {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay walkthrough-overlay';
+
+    const modal = document.createElement('div');
+    modal.className = 'modal walkthrough-modal';
+
+    const titleEl = document.createElement('h2');
+    modal.appendChild(titleEl);
+
+    const stepIndicator = document.createElement('div');
+    stepIndicator.className = 'wt-step-indicator';
+    modal.appendChild(stepIndicator);
+
+    const body = document.createElement('div');
+    body.className = 'modal-body walkthrough-body';
+    modal.appendChild(body);
+
+    const dots = document.createElement('div');
+    dots.className = 'walkthrough-dots';
+    modal.appendChild(dots);
+
+    const nav = document.createElement('div');
+    nav.className = 'walkthrough-nav';
+
+    const skipBtn = document.createElement('button');
+    skipBtn.className = 'btn walkthrough-skip-btn';
+    skipBtn.textContent = 'Skip Tutorial';
+
+    const navRight = document.createElement('div');
+    navRight.className = 'walkthrough-nav-right';
+    const backBtn = document.createElement('button');
+    backBtn.className = 'btn';
+    backBtn.textContent = '← Back';
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'btn btn-primary';
+    nextBtn.textContent = 'Next →';
+    navRight.appendChild(backBtn);
+    navRight.appendChild(nextBtn);
+
+    nav.appendChild(skipBtn);
+    nav.appendChild(navRight);
+    modal.appendChild(nav);
+
+    let currentStep = 0;
+    const total = WALKTHROUGH_STEPS.length;
+
+    function render() {
+      const step = WALKTHROUGH_STEPS[currentStep];
+      titleEl.textContent = step.title;
+      stepIndicator.textContent = `Step ${currentStep + 1} of ${total}`;
+      body.innerHTML = step.html;
+      body.scrollTop = 0;
+
+      dots.innerHTML = '';
+      for (let i = 0; i < total; i++) {
+        const d = document.createElement('button');
+        d.className = 'walkthrough-dot';
+        if (i === currentStep) d.classList.add('active');
+        else if (i < currentStep) d.classList.add('done');
+        d.setAttribute('aria-label', `Go to step ${i + 1}`);
+        d.addEventListener('click', () => { currentStep = i; render(); });
+        dots.appendChild(d);
+      }
+
+      backBtn.disabled = currentStep === 0;
+      nextBtn.textContent = currentStep === total - 1 ? 'Start Game' : 'Next →';
+    }
+
+    function close() {
+      document.removeEventListener('keydown', onKey);
+      overlay.remove();
+      resolve();
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') { e.preventDefault(); close(); }
+      else if (e.key === 'ArrowRight' && currentStep < total - 1) { e.preventDefault(); currentStep++; render(); }
+      else if (e.key === 'ArrowLeft' && currentStep > 0) { e.preventDefault(); currentStep--; render(); }
+    }
+
+    skipBtn.addEventListener('click', close);
+    backBtn.addEventListener('click', () => { if (currentStep > 0) { currentStep--; render(); } });
+    nextBtn.addEventListener('click', () => {
+      if (currentStep < total - 1) { currentStep++; render(); }
+      else close();
+    });
+    document.addEventListener('keydown', onKey);
+
+    render();
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+  });
+}
+
 // ── Draw tickets button ──
 
 export function setDrawTicketsBtn(onClick) {
