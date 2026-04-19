@@ -4,7 +4,7 @@ import {
   CITIES, ROUTES, TICKETS, CARD_COLORS, LOCO, CURRENCY_TYPES,
   CARDS_PER_COLOR, LOCO_COUNT, CURRENCY_PER_TYPE,
   TRAINS_PER_PLAYER, STARTING_HAND, END_TRIGGER, CURRENCY_BONUS,
-  LONGEST_PATH_BONUS, ROUTE_TYPE, DEFAULT_NUM_PLAYERS,
+  CURRENCY_BONUS_VALUES, LONGEST_PATH_BONUS, ROUTE_TYPE, DEFAULT_NUM_PLAYERS,
   getRoutePoints, DOUBLE_ROUTE_PAIRS,
 } from './game-data.js';
 
@@ -40,6 +40,7 @@ function createPlayer(index) {
     trains: TRAINS_PER_PLAYER,
     score: 0,
     currencyBonuses: 0,
+    currencyBonusTotal: 0,
   };
 }
 
@@ -277,12 +278,14 @@ export class GameState {
 
     // Currency bonus
     let currencyUsed = false;
+    let bonusAmount = 0;
     if (useCurrency) {
-      const zone = this._getRouteCurrencyZone(route);
-      if (zone && (player.hand[zone] || 0) > 0) {
+      const zone = this.getBestCurrency(playerIdx, routeIdx);
+      if (zone) {
         player.hand[zone]--;
         this.discardPile.push(zone);
         currencyUsed = true;
+        bonusAmount = CURRENCY_BONUS_VALUES[zone] || CURRENCY_BONUS;
       }
     }
 
@@ -292,25 +295,35 @@ export class GameState {
     const points = getRoutePoints(route.length, route.type);
     player.score += points;
     if (currencyUsed) {
-      player.score += CURRENCY_BONUS;
+      player.score += bonusAmount;
       player.currencyBonuses++;
+      player.currencyBonusTotal += bonusAmount;
     }
 
-    return { points, currencyUsed, currencyBonus: currencyUsed ? CURRENCY_BONUS : 0 };
+    return { points, currencyUsed, currencyBonus: bonusAmount };
   }
 
-  _getRouteCurrencyZone(route) {
-    const cityFrom = CITIES[route.from];
-    const cityTo = CITIES[route.to];
-    if (cityFrom.zone === cityTo.zone) return cityFrom.zone;
+  _getRouteCurrencyZones(route) {
+    const fromZone = CITIES[route.from].zone;
+    const toZone = CITIES[route.to].zone;
+    if (fromZone === toZone) return [fromZone];
+    return [fromZone, toZone];
+  }
+
+  getBestCurrency(playerIdx, routeIdx) {
+    const route = ROUTES[routeIdx];
+    const player = this.players[playerIdx];
+    const zones = this._getRouteCurrencyZones(route);
+    const sorted = [...zones].sort((a, b) =>
+      (CURRENCY_BONUS_VALUES[b] || 0) - (CURRENCY_BONUS_VALUES[a] || 0));
+    for (const zone of sorted) {
+      if ((player.hand[zone] || 0) > 0) return zone;
+    }
     return null;
   }
 
   canUseCurrency(playerIdx, routeIdx) {
-    const route = ROUTES[routeIdx];
-    const player = this.players[playerIdx];
-    const zone = this._getRouteCurrencyZone(route);
-    return zone && (player.hand[zone] || 0) > 0;
+    return this.getBestCurrency(playerIdx, routeIdx) !== null;
   }
 
   getClaimableRoutes(playerIdx) {
@@ -446,7 +459,7 @@ export class GameState {
         routePoints: player.score,
         ticketPoints,
         ticketResults,
-        currencyBonuses: player.currencyBonuses * CURRENCY_BONUS,
+        currencyBonuses: player.currencyBonusTotal,
         longestPath: pathLen,
         totalBeforePath: player.score + ticketPoints,
       });

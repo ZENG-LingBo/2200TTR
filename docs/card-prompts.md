@@ -121,8 +121,9 @@ DELIVERABLES: 1 PDF + 1 PNG at 300 DPI. Print run: 14 copies.
 
 ```
 ROLE: Senior board-game card illustrator.
-CONTEXT: GBA Ticket to Ride — currency cards grant a +3 bonus when claiming
-a route where both endpoint cities share a currency zone.
+CONTEXT: GBA Ticket to Ride — currency cards grant a scaled bonus when claiming
+a route where at least one endpoint city is in the matching currency zone.
+RMB = +3, HKD = +5, MOP = +7. Rarer currencies give bigger bonuses.
 
 <<insert ART DIRECTION block>>
 
@@ -155,6 +156,7 @@ DELIVERABLES: 1 PDF + 1 PNG at 300 DPI. Print run: 6 copies.
 ```
 ROLE: Senior board-game card illustrator.
 CONTEXT: GBA Ticket to Ride — HKD currency card for the Hong Kong zone.
+Grants +5 bonus when claiming a route touching Hong Kong or NT.
 
 <<insert ART DIRECTION block>>
 
@@ -167,7 +169,7 @@ CARD BRIEF — HKD Currency Card:
   #bdc3c7, off-white text.
 - Top banner: "HKD · 港币" Inter Bold white.
 - Center: massive stylized $ (90pt) with tiny "HK" subscript.
-- Bottom corner: "+3 BONUS / +3 奖励" in silver, pill-shaped badge.
+- Bottom corner: "+5 BONUS / +5 奖励" in silver, pill-shaped badge.
 - Pattern: faint repeating $ and 元 characters at 5% opacity.
 - Fine-print bottom: "Hong Kong SAR zone · 香港特别行政区".
 
@@ -188,6 +190,7 @@ DELIVERABLES: 1 PDF + 1 PNG at 300 DPI. Print run: 6 copies.
 ```
 ROLE: Senior board-game card illustrator.
 CONTEXT: GBA Ticket to Ride — MOP currency card for the Macau zone.
+Grants +7 bonus when claiming a route touching Macau.
 
 <<insert ART DIRECTION block>>
 
@@ -199,7 +202,7 @@ CARD BRIEF — MOP Currency Card:
   accents #fff3e0, off-white text.
 - Top banner: "MOP · 澳门币 / 葡币" Inter Bold white.
 - Center: massive stylized "P" (or 圆) in 90pt, with tiny "MO" subscript.
-- Bottom corner: "+3 BONUS / +3 奖励" in cream, pill-shaped badge.
+- Bottom corner: "+7 BONUS / +7 奖励" in cream, pill-shaped badge.
 - Pattern: faint Portuguese-tile (azulejo) lattice at 8% opacity.
 - Fine-print bottom: "Macau SAR zone · 澳门特别行政区".
 
@@ -369,7 +372,7 @@ CARD BRIEF — Player Reference Card (landscape):
      | 5 | 10| 20| 15|
      | 6 | 15| 30| 23|
   3. "EXTRAS · 加分"
-     💰 Currency bonus +3 (same-zone endpoints)
+     💰 Currency bonus: ¥+3 · $+5 · P+7 (either endpoint in zone)
      🏆 Longest continuous path +10
      🏁 Game ends when any player has ≤3 trains.
 - Bottom-right: tiny "v1.0" + GBA TTR logo.

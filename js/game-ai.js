@@ -1,6 +1,6 @@
 // ── GBA Ticket to Ride — AI Opponent ──
 
-import { ROUTES, CITIES, CARD_COLORS, LOCO, ROUTE_TYPE, getRoutePoints } from './game-data.js';
+import { ROUTES, CITIES, CARD_COLORS, LOCO, CURRENCY_TYPES, ROUTE_TYPE, getRoutePoints } from './game-data.js';
 
 // ── BFS: find shortest path between two cities using unclaimed routes ──
 function findPath(gameState, playerIdx, from, to) {
@@ -155,8 +155,14 @@ export function aiTakeTurn(gameState, playerIdx, callbacks) {
         }
         continue;
       }
-      // Skip currency cards for AI (keep it simple)
-      if (['RMB', 'HKD', 'MOP'].includes(card)) continue;
+      if (CURRENCY_TYPES.includes(card)) {
+        let score = 2;
+        if (score > bestScore) {
+          bestScore = score;
+          bestIdx = i;
+        }
+        continue;
+      }
 
       let score = 1; // base: any train card is okay
       if (neededColors[card]) score = neededColors[card] + 5;

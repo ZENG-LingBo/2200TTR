@@ -5,6 +5,7 @@ export const TRAINS_PER_PLAYER = 35;
 export const STARTING_HAND = 5;
 export const END_TRIGGER = 3;
 export const CURRENCY_BONUS = 3;
+export const CURRENCY_BONUS_VALUES = { RMB: 3, HKD: 5, MOP: 7 };
 export const LONGEST_PATH_BONUS = 10;
 export const DEFAULT_NUM_PLAYERS = 2;
 export const MIN_PLAYERS = 2;
