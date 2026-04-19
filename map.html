@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GBA Ticket to Ride — Physical Map</title>
+  <link rel="stylesheet" href="css/map.css">
+</head>
+<body>
+  <div class="pm-toolbar">
+    <a class="pm-link" href="index.html">← Back to game</a>
+    <h1>Physical Map · Print &amp; Export</h1>
+    <button id="pm-export" class="pm-btn">Download as PDF</button>
+  </div>
+
+  <div class="pm-hint">
+    Click <strong>Download as PDF</strong>, then in the print dialog choose
+    <em>Save as PDF</em>, <em>Landscape</em>, and enable <em>Background graphics</em>.
+  </div>
+
+  <main class="pm-sheet">
+    <svg id="pm-map" viewBox="0 0 960 650" xmlns="http://www.w3.org/2000/svg"></svg>
+  </main>
+
+  <script type="module">
+    import { renderPhysicalMap, exportAsPDF } from './js/physical-map.js';
+    renderPhysicalMap(document.getElementById('pm-map'));
+    document.getElementById('pm-export').addEventListener('click', exportAsPDF);
+  </script>
+</body>
+</html>

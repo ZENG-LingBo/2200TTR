@@ -1,0 +1,171 @@
+/* ── GBA Ticket to Ride — Physical Map (print-ready) ── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #e9eef3;
+  color: #1a1a2e;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.pm-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 1100px;
+  margin: 0 auto 10px;
+}
+
+.pm-toolbar h1 {
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0b3d5c;
+}
+
+.pm-link {
+  color: #2980b9;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.pm-link:hover { text-decoration: underline; }
+
+.pm-btn {
+  background: #0b3d5c;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.pm-btn:hover { background: #145a82; }
+
+.pm-hint {
+  max-width: 1100px;
+  margin: 0 auto 14px;
+  font-size: 0.85rem;
+  color: #4a6274;
+  background: #fff;
+  border-left: 3px solid #0b3d5c;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+/* ── The sheet that gets printed ── */
+.pm-sheet {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+}
+
+#pm-map {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── Map text styling (SVG) ── */
+.pm-title {
+  font-size: 22px;
+  font-weight: 700;
+  fill: #0b3d5c;
+  letter-spacing: 0.5px;
+}
+.pm-subtitle {
+  font-size: 12px;
+  fill: #4a6274;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.pm-label-en {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #0b1e2d;
+  paint-order: stroke;
+  stroke: #ffffff;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.pm-label-cn {
+  font-size: 10px;
+  font-weight: 600;
+  fill: #3a556b;
+  paint-order: stroke;
+  stroke: #ffffff;
+  stroke-width: 2.5px;
+  stroke-linejoin: round;
+}
+
+.pm-route-icon {
+  font-size: 11px;
+  pointer-events: none;
+}
+.pm-route-tag {
+  font-size: 9px;
+  font-weight: 700;
+  fill: #0b3d5c;
+  paint-order: stroke;
+  stroke: #ffffff;
+  stroke-width: 2.5px;
+  stroke-linejoin: round;
+}
+
+.pm-legend-title {
+  font-size: 13px;
+  font-weight: 700;
+  fill: #0b3d5c;
+}
+.pm-legend-text {
+  font-size: 11px;
+  fill: #1a2b38;
+}
+.pm-legend-note {
+  font-size: 9px;
+  fill: #4a6274;
+  font-style: italic;
+}
+
+/* ── Print rules: only the map goes to paper ── */
+@page {
+  size: A4 landscape;
+  margin: 8mm;
+}
+
+@media print {
+  body {
+    background: #ffffff;
+    padding: 0;
+  }
+  .pm-toolbar,
+  .pm-hint {
+    display: none !important;
+  }
+  .pm-sheet {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  #pm-map {
+    width: 100%;
+    height: auto;
+  }
+  /* Ensure colors print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
