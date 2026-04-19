@@ -9,6 +9,16 @@ A browser-based **Ticket to Ride** board game set in China's **Greater Bay Area*
 
 Built with vanilla HTML/CSS/JS — no frameworks, no build step, no install.
 
+## Multiplayer (Multi-Device)
+
+Three ways to play:
+
+- **Local / Hot-Seat**: one device, pass it around (humans + AI supported)
+- **Online — Create Room**: generates a 4-character code and a shareable link
+- **Online — Join Room**: paste the code or open the shared link on any device
+
+Online mode uses **WebRTC peer-to-peer** via the free public PeerJS broker — there is no backend to run. The room creator's browser holds the authoritative game state and syncs it to everyone else. Works across phones, tablets, and laptops as long as each player opens the game page.
+
 ![GBA Ticket to Ride Screenshot](preview.png)
 
 ## What Makes It Different from Standard Ticket to Ride?
