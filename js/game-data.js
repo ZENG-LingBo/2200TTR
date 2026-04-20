@@ -80,7 +80,7 @@ export const CITIES = [
   { id: 10, name: 'Longgang',  chinese: '龙岗区', zone: 'RMB', x: 770, y: 360 },
   { id: 11, name: 'Shenzhen',  chinese: '深圳',  zone: 'RMB', x: 698, y: 440 },
   { id: 12, name: 'Zhuhai',    chinese: '珠海',  zone: 'RMB', x: 518, y: 545 },
-  { id: 13, name: 'Macau',     chinese: '澳门',  zone: 'MOP', x: 506, y: 575 },
+  { id: 13, name: 'Macau',     chinese: '澳门',  zone: 'MOP', x: 488, y: 618 },
   { id: 14, name: 'NT',        chinese: '新界',  zone: 'HKD', x: 740, y: 490 },
   { id: 15, name: 'Hong Kong', chinese: '香港',  zone: 'HKD', x: 740, y: 570 },
 ];
