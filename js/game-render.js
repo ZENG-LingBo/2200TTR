@@ -568,6 +568,289 @@ export function showEndGameModal(results) {
   return showModal(`${winnerName} Wins!`, html, [{ label: 'New Game', value: 'new', primary: true }]);
 }
 
+// ── Mode picker: Local vs Online ──
+
+export function showModePicker(autoJoinCode = null) {
+  return new Promise(resolve => {
+    // Auto-route if URL contained a room code
+    if (autoJoinCode) {
+      resolve({ mode: 'online-join', code: autoJoinCode });
+      return;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay setup-overlay';
+
+    const modal = document.createElement('div');
+    modal.className = 'modal setup-modal';
+
+    const h2 = document.createElement('h2');
+    h2.textContent = 'GBA Ticket to Ride';
+    modal.appendChild(h2);
+
+    const sub = document.createElement('p');
+    sub.className = 'setup-subtitle';
+    sub.textContent = 'Build train routes across the Greater Bay Area';
+    modal.appendChild(sub);
+
+    const section = document.createElement('div');
+    section.className = 'setup-section';
+    section.innerHTML = '<h3>How do you want to play?</h3>';
+    modal.appendChild(section);
+
+    const btnBar = document.createElement('div');
+    btnBar.className = 'modal-buttons';
+    btnBar.style.flexDirection = 'column';
+    btnBar.style.gap = '10px';
+
+    const localBtn = document.createElement('button');
+    localBtn.className = 'btn btn-primary';
+    localBtn.textContent = '🎮  Local / Hot-Seat (+AI)';
+    localBtn.addEventListener('click', () => {
+      overlay.remove();
+      resolve({ mode: 'local' });
+    });
+
+    const hostBtn = document.createElement('button');
+    hostBtn.className = 'btn';
+    hostBtn.textContent = '🌐  Create Online Room';
+    hostBtn.addEventListener('click', () => {
+      overlay.remove();
+      resolve({ mode: 'online-host' });
+    });
+
+    const joinBtn = document.createElement('button');
+    joinBtn.className = 'btn';
+    joinBtn.textContent = '🔗  Join Online Room';
+    joinBtn.addEventListener('click', () => {
+      overlay.remove();
+      resolve({ mode: 'online-join' });
+    });
+
+    btnBar.appendChild(localBtn);
+    btnBar.appendChild(hostBtn);
+    btnBar.appendChild(joinBtn);
+    modal.appendChild(btnBar);
+
+    const hint = document.createElement('p');
+    hint.className = 'setup-subtitle';
+    hint.style.marginTop = '16px';
+    hint.style.fontSize = '0.85em';
+    hint.innerHTML = 'Online uses peer-to-peer WebRTC via the free PeerJS broker — no server to run.';
+    modal.appendChild(hint);
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+  });
+}
+
+// ── Name prompt (for online mode) ──
+
+export function showNamePrompt(title, subtitle) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay setup-overlay';
+    const modal = document.createElement('div');
+    modal.className = 'modal setup-modal';
+    modal.innerHTML = `
+      <h2>${title}</h2>
+      <p class="setup-subtitle">${subtitle || ''}</p>
+    `;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'setup-name-input';
+    input.placeholder = 'Your name';
+    input.maxLength = 20;
+    input.value = localStorage.getItem('gba-last-name') || '';
+    modal.appendChild(input);
+
+    const btnBar = document.createElement('div');
+    btnBar.className = 'modal-buttons';
+    const ok = document.createElement('button');
+    ok.className = 'btn btn-primary';
+    ok.textContent = 'Continue';
+    const cancel = document.createElement('button');
+    cancel.className = 'btn';
+    cancel.textContent = 'Back';
+    btnBar.appendChild(cancel);
+    btnBar.appendChild(ok);
+    modal.appendChild(btnBar);
+
+    const confirm = () => {
+      const name = input.value.trim() || 'Player';
+      localStorage.setItem('gba-last-name', name);
+      overlay.remove();
+      resolve({ name });
+    };
+    ok.addEventListener('click', confirm);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') confirm(); });
+    cancel.addEventListener('click', () => { overlay.remove(); resolve(null); });
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    setTimeout(() => input.focus(), 50);
+  });
+}
+
+// ── Room code prompt (for joiner) ──
+
+export function showJoinPrompt(prefill = '') {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay setup-overlay';
+    const modal = document.createElement('div');
+    modal.className = 'modal setup-modal';
+    modal.innerHTML = `
+      <h2>Join Online Room</h2>
+      <p class="setup-subtitle">Enter the room code shared by the host</p>
+    `;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'setup-name-input';
+    input.placeholder = 'Room code (e.g. ABCD)';
+    input.maxLength = 8;
+    input.style.textTransform = 'uppercase';
+    input.style.letterSpacing = '0.2em';
+    input.value = prefill;
+    modal.appendChild(input);
+
+    const btnBar = document.createElement('div');
+    btnBar.className = 'modal-buttons';
+    const ok = document.createElement('button');
+    ok.className = 'btn btn-primary';
+    ok.textContent = 'Join';
+    const cancel = document.createElement('button');
+    cancel.className = 'btn';
+    cancel.textContent = 'Back';
+    btnBar.appendChild(cancel);
+    btnBar.appendChild(ok);
+    modal.appendChild(btnBar);
+
+    const confirm = () => {
+      const code = input.value.trim().toUpperCase();
+      if (!code) return;
+      overlay.remove();
+      resolve({ code });
+    };
+    ok.addEventListener('click', confirm);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') confirm(); });
+    cancel.addEventListener('click', () => { overlay.remove(); resolve(null); });
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    setTimeout(() => input.focus(), 50);
+  });
+}
+
+// ── Lobby screen (host + client) ──
+// Returns a live handle: { update({players, isHost, roomCode, status}), waitForStart(), close() }
+
+export function showLobbyScreen(opts) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay setup-overlay';
+  const modal = document.createElement('div');
+  modal.className = 'modal setup-modal';
+
+  const title = document.createElement('h2');
+  title.textContent = opts.isHost ? 'Online Room (you are host)' : 'Joined Room';
+  modal.appendChild(title);
+
+  const codeBlock = document.createElement('div');
+  codeBlock.className = 'setup-section';
+  codeBlock.innerHTML = `
+    <h3>Room Code</h3>
+    <div class="lobby-code" style="font-size:2em;letter-spacing:0.3em;text-align:center;padding:10px;background:#f0f4f8;border-radius:8px;font-weight:bold;">${opts.roomCode}</div>
+  `;
+  modal.appendChild(codeBlock);
+
+  if (opts.isHost) {
+    const shareUrl = `${location.origin}${location.pathname}?room=${opts.roomCode}`;
+    const share = document.createElement('div');
+    share.className = 'setup-section';
+    share.innerHTML = `
+      <h3>Share link</h3>
+      <input type="text" class="setup-name-input" readonly value="${shareUrl}" style="font-size:0.9em;">
+      <p class="setup-subtitle" style="font-size:0.8em;margin-top:6px;">Send this link (or the code) to other players on any device.</p>
+    `;
+    const linkInput = share.querySelector('input');
+    linkInput.addEventListener('click', () => linkInput.select());
+    modal.appendChild(share);
+  }
+
+  const playersSection = document.createElement('div');
+  playersSection.className = 'setup-section';
+  playersSection.innerHTML = '<h3>Players</h3>';
+  const playerList = document.createElement('div');
+  playerList.className = 'setup-player-list lobby-player-list';
+  playersSection.appendChild(playerList);
+  modal.appendChild(playersSection);
+
+  const statusEl = document.createElement('p');
+  statusEl.className = 'setup-subtitle';
+  statusEl.textContent = opts.isHost
+    ? 'Waiting for players to join. Start when ready (2-4 players).'
+    : 'Waiting for host to start the game…';
+  modal.appendChild(statusEl);
+
+  const btnBar = document.createElement('div');
+  btnBar.className = 'modal-buttons';
+  let startBtn = null;
+  let startResolve = null;
+  if (opts.isHost) {
+    startBtn = document.createElement('button');
+    startBtn.className = 'btn btn-primary';
+    startBtn.textContent = 'Start Game';
+    startBtn.disabled = true;
+    startBtn.addEventListener('click', () => {
+      if (startResolve) startResolve();
+    });
+    btnBar.appendChild(startBtn);
+  }
+  const leaveBtn = document.createElement('button');
+  leaveBtn.className = 'btn';
+  leaveBtn.textContent = 'Leave';
+  leaveBtn.addEventListener('click', () => {
+    if (opts.onLeave) opts.onLeave();
+  });
+  btnBar.appendChild(leaveBtn);
+  modal.appendChild(btnBar);
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  function renderPlayers(players) {
+    playerList.innerHTML = '';
+    for (let i = 0; i < players.length; i++) {
+      const row = document.createElement('div');
+      row.className = 'setup-player-row';
+      row.style.borderLeftColor = PLAYER_COLORS[i];
+      const label = document.createElement('div');
+      label.className = 'setup-name-input';
+      label.style.flex = '1';
+      label.textContent = `${players[i].name}${i === 0 ? ' (host)' : ''}`;
+      row.appendChild(label);
+      playerList.appendChild(row);
+    }
+  }
+
+  return {
+    update({ players, status }) {
+      if (players) renderPlayers(players);
+      if (status) statusEl.textContent = status;
+      if (startBtn) {
+        const n = (players && players.length) || 0;
+        startBtn.disabled = !(n >= MIN_PLAYERS && n <= MAX_PLAYERS);
+      }
+    },
+    waitForStart() {
+      return new Promise(resolve => { startResolve = resolve; });
+    },
+    close() {
+      overlay.remove();
+    },
+  };
+}
+
 // ── Setup screen: pick number of players & human/AI for each ──
 
 export function showSetupScreen() {

@@ -8,9 +8,10 @@ import {
   highlightClaimable, showMessage, showModal, showTicketPicker,
   showEndGameModal, setDrawTicketsBtn, setClaimBtn, disableActions,
   showSetupScreen, showPassDeviceScreen, setPlayerInfo, getPlayerName,
-  showWalkthrough,
+  showWalkthrough, showModePicker, showNamePrompt, showJoinPrompt,
 } from './game-render.js';
 import { aiTakeTurn, aiPickTickets } from './game-ai.js';
+import { runHost, runClient } from './online.js';
 
 let game;
 let playerNames = [];
@@ -27,13 +28,45 @@ function humanCount() { return playerTypes.filter(t => t === 'human').length; }
 
 // ── Initialize ──
 
-async function startGame() {
+async function bootstrap() {
   // First-time onboarding walkthrough (skippable, remembered via localStorage)
   if (localStorage.getItem('gba-tutorial-seen') !== '1') {
     await showWalkthrough();
     localStorage.setItem('gba-tutorial-seen', '1');
   }
 
+  // URL param ?room=CODE auto-routes to online-join
+  const params = new URLSearchParams(location.search);
+  const roomFromUrl = params.get('room');
+
+  // Mode picker
+  const pick = await showModePicker(roomFromUrl ? roomFromUrl.toUpperCase() : null);
+
+  if (pick.mode === 'local') {
+    await startLocalGame();
+    return;
+  }
+  if (pick.mode === 'online-host') {
+    const n = await showNamePrompt('Create Online Room', 'Enter your name');
+    if (!n) { bootstrap(); return; }
+    await runHost(n.name);
+    return;
+  }
+  if (pick.mode === 'online-join') {
+    let code = pick.code;
+    if (!code) {
+      const j = await showJoinPrompt();
+      if (!j) { bootstrap(); return; }
+      code = j.code;
+    }
+    const n = await showNamePrompt('Join Online Room', `Room code: ${code}`);
+    if (!n) { bootstrap(); return; }
+    await runClient(n.name, code);
+    return;
+  }
+}
+
+async function startLocalGame() {
   // Setup screen
   const setup = await showSetupScreen();
   playerNames = setup.names;
@@ -401,7 +434,7 @@ async function endGame() {
   renderAll();
   const action = await showEndGameModal(results);
   if (action === 'new') {
-    startGame();
+    bootstrap();
   }
 }
 
@@ -449,4 +482,4 @@ function getCardDisplayName(card) {
 }
 
 // ── Start ──
-window.addEventListener('DOMContentLoaded', startGame);
+window.addEventListener('DOMContentLoaded', bootstrap);
