@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 440" font-family="system-ui, -apple-system, sans-serif">
+  <style>
+    .panel-bg { fill: #d7ecf5; }
+    .panel-title { font-size: 14px; font-weight: 700; fill: #1a1a2e; }
+    .panel-sub { font-size: 11px; fill: #555; }
+    .city-label { font-size: 11px; font-weight: 700; fill: #1a1a2e; stroke: #fff; stroke-width: 3; paint-order: stroke; }
+    .city-label-cn { font-size: 9px; fill: #555; stroke: #fff; stroke-width: 3; paint-order: stroke; }
+    .route-icon { font-size: 12px; }
+    .divider { stroke: #aaa; stroke-width: 1; stroke-dasharray: 4 3; }
+    .legend { font-size: 10px; fill: #333; }
+    .arrow { stroke: #e74c3c; stroke-width: 2; fill: none; marker-end: url(#arr); }
+  </style>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#e74c3c"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="340" y="24" text-anchor="middle" font-size="16" font-weight="700" fill="#1a1a2e">Macau ↔ Zhuhai ferry route — before / after</text>
+
+  <!-- BEFORE panel -->
+  <rect class="panel-bg" x="10" y="40" width="320" height="390" rx="6"/>
+  <text class="panel-title" x="170" y="60" text-anchor="middle">BEFORE (current bug)</text>
+  <text class="panel-sub" x="170" y="76" text-anchor="middle">Zhuhai (518,545) · Macau (506,575) · 32 px apart</text>
+
+  <!-- BEFORE: ferry route (length 1, computed segLen ≈ 2.3 px) -->
+  <g transform="translate(0,40)">
+    <!-- ferry rect: cx=154, cy=195, w=2.31, h=14, rotated 111.8° -->
+    <rect x="152.84" y="188" width="2.31" height="14" rx="3"
+          fill="#95a5a6" stroke="#555" stroke-width="1" opacity="0.7"
+          transform="rotate(111.8 154 195)"/>
+    <text class="route-icon" x="154" y="199" text-anchor="middle">⛴</text>
+
+    <!-- Zhuhai -->
+    <circle cx="160" cy="180" r="14" fill="#00bcd4" opacity="0.3"/>
+    <circle cx="160" cy="180" r="9" fill="#00bcd4" stroke="#006064" stroke-width="2"/>
+    <text class="city-label" x="160" y="164" text-anchor="middle">Zhuhai</text>
+    <text class="city-label-cn" x="160" y="204" text-anchor="middle">珠海</text>
+
+    <!-- Macau -->
+    <circle cx="148" cy="210" r="14" fill="#00bcd4" opacity="0.3"/>
+    <circle cx="148" cy="210" r="9" fill="#00bcd4" stroke="#006064" stroke-width="2"/>
+    <text class="city-label" x="148" y="194" text-anchor="middle">Macau</text>
+    <text class="city-label-cn" x="148" y="234" text-anchor="middle">澳门</text>
+
+    <!-- Callout -->
+    <path class="arrow" d="M 240 180 Q 200 190 162 193"/>
+    <text class="legend" x="245" y="178">ferry rect</text>
+    <text class="legend" x="245" y="190">is ~2 px,</text>
+    <text class="legend" x="245" y="202">hidden behind</text>
+    <text class="legend" x="245" y="214">overlapping</text>
+    <text class="legend" x="245" y="226">city glows</text>
+    <text class="legend" x="245" y="238">and labels</text>
+  </g>
+
+  <!-- Divider -->
+  <line class="divider" x1="340" y1="50" x2="340" y2="420"/>
+
+  <!-- AFTER panel -->
+  <rect class="panel-bg" x="350" y="40" width="320" height="390" rx="6"/>
+  <text class="panel-title" x="510" y="60" text-anchor="middle">AFTER (fixed)</text>
+  <text class="panel-sub" x="510" y="76" text-anchor="middle">Zhuhai (518,545) · Macau (488,618) · 79 px apart</text>
+
+  <!-- AFTER: ferry route (length 1, segLen = 28 px) -->
+  <g transform="translate(350,40)">
+    <!-- ferry rect: cx=75, cy=136.5, w=28, h=14, rotated 112.3° -->
+    <rect x="61" y="129.5" width="28" height="14" rx="3"
+          fill="#95a5a6" stroke="#555" stroke-width="1" opacity="0.7"
+          transform="rotate(112.3 75 136.5)"/>
+    <text class="route-icon" x="75" y="140" text-anchor="middle">⛴</text>
+
+    <!-- Zhuhai -->
+    <circle cx="90" cy="100" r="14" fill="#00bcd4" opacity="0.3"/>
+    <circle cx="90" cy="100" r="9" fill="#00bcd4" stroke="#006064" stroke-width="2"/>
+    <text class="city-label" x="90" y="84" text-anchor="middle">Zhuhai</text>
+    <text class="city-label-cn" x="90" y="124" text-anchor="middle">珠海</text>
+
+    <!-- Macau -->
+    <circle cx="60" cy="173" r="14" fill="#00bcd4" opacity="0.3"/>
+    <circle cx="60" cy="173" r="9" fill="#00bcd4" stroke="#006064" stroke-width="2"/>
+    <text class="city-label" x="60" y="157" text-anchor="middle">Macau</text>
+    <text class="city-label-cn" x="60" y="197" text-anchor="middle">澳门</text>
+
+    <!-- Callout -->
+    <path class="arrow" d="M 180 135 Q 130 140 95 138"/>
+    <text class="legend" x="185" y="128">ferry rect is</text>
+    <text class="legend" x="185" y="140">28 px, clearly</text>
+    <text class="legend" x="185" y="152">visible; labels</text>
+    <text class="legend" x="185" y="164">don't overlap;</text>
+    <text class="legend" x="185" y="176">Macau stays</text>
+    <text class="legend" x="185" y="188">SW of Zhuhai</text>
+    <text class="legend" x="185" y="200">(real geography)</text>
+  </g>
+
+  <!-- Footer note -->
+  <text x="340" y="425" text-anchor="middle" font-size="10" fill="#666">
+    Diagram uses the same rendering formula as js/game-render.js (glow r=14, dot r=9, segLen = min(28, (dist−30)/length)).
+  </text>
+</svg>
